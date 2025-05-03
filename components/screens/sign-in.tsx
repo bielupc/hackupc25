@@ -28,9 +28,9 @@ export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen justify-center items-center bg-gradient-to-br from-white to-blue-50 px-4">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mt-8 mb-8">
+    <div className="items-center flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 px-4 h-full">
+      <div className="w-full flex flex-col max-w-md justify-center flex-1">
+        <div className="flex flex-col items-center mb-8">
           <Logo />
           <h2 className="text-xl font-semibold mt-2 mb-1">Welcome!</h2>
           <h1 className="text-4xl font-bold mb-2">Sign in</h1>
