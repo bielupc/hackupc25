@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface User {
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -20,7 +21,7 @@ export function AuthPage({ onLoginSuccess, onBack }: AuthPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Directly insert into users table
-  const handleSignUp = async (user: User & { password: string }) => {
+  const handleSignUp = async (user: { email: string; password: string; firstName: string; lastName: string }) => {
     try {
       const id = uuidv4();
       console.log(user);
@@ -49,13 +50,14 @@ export function AuthPage({ onLoginSuccess, onBack }: AuthPageProps) {
     try {
       const { data, error: selectError } = await supabase
         .from('users')
-        .select('email, first_name, last_name')
+        .select('id, email, first_name, last_name')
         .eq('email', email)
         .eq('password', password)
         .single();
       if (selectError || !data) throw selectError || new Error('Invalid credentials');
       setError(null);
       onLoginSuccess({
+        id: data.id,
         email: data.email,
         firstName: data.first_name,
         lastName: data.last_name,
