@@ -14,7 +14,7 @@ const Logo = () => (
 );
 
 interface SignInScreenProps {
-  onNext: (email: string, password: string) => boolean;
+  onNext: (email: string, password: string) => Promise<boolean>;
   onSignUp: () => void;
   error?: string | null;
 }
@@ -22,9 +22,15 @@ interface SignInScreenProps {
 export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignIn = () => {
-    onNext(email, password);
+  const handleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await onNext(email, password);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -60,10 +66,13 @@ export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
           </div>
         </div>
         <button
-          className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors mb-6"
+          className={`w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md transition-colors mb-6 ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+          }`}
           onClick={handleSignIn}
+          disabled={isLoading}
         >
-          Sign in now
+          {isLoading ? 'Signing in...' : 'Sign in now'}
         </button>
         <div className="flex justify-center">
           <button className="text-lg font-semibold text-gray-900 hover:underline" type="button" onClick={onSignUp}>

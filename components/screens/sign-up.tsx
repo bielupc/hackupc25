@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
 
 interface SignUpScreenProps {
-  onDone: (user: { email: string; password: string; firstName: string; lastName: string }) => boolean;
+  onDone: (user: { email: string; password: string; firstName: string; lastName: string }) => Promise<boolean>;
   error?: string | null;
 }
 
@@ -11,9 +11,15 @@ export function SignUpScreen({ onDone, error }: SignUpScreenProps) {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignUp = () => {
-    onDone({ email, password, firstName, lastName });
+  const handleSignUp = async () => {
+    setIsLoading(true);
+    try {
+      await onDone({ email, password, firstName, lastName });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,10 +86,13 @@ export function SignUpScreen({ onDone, error }: SignUpScreenProps) {
           </div>
         </div>
         <button
-          className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors mb-6"
+          className={`w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md transition-colors mb-6 ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+          }`}
           onClick={handleSignUp}
+          disabled={isLoading}
         >
-          Done
+          {isLoading ? 'Creating account...' : 'Done'}
         </button>
       </div>
     </div>

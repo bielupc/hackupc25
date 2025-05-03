@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SignInScreen } from './sign-in';
 import { SignUpScreen } from './sign-up';
+import { supabase } from '../../lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface User {
   email: string;
-  password: string;
   firstName: string;
   lastName: string;
 }
@@ -15,51 +16,54 @@ interface AuthPageProps {
 
 export function AuthPage({ onLoginSuccess }: AuthPageProps) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
-  const [users, setUsers] = useState<User[]>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('users');
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
   const [error, setError] = useState<string | null>(null);
 
-  // Save users to localStorage whenever users change
-  useEffect(() => {
-    localStorage.setItem('users', JSON.stringify(users));
-  }, [users]);
-
-  const handleSignUp = (user: User) => {
-    if (users.some(u => u.email === user.email)) {
-      setError('User already exists');
+  // Directly insert into users table
+  const handleSignUp = async (user: User & { password: string }) => {
+    try {
+      const id = uuidv4();
+      console.log(user);
+      const { error: insertError } = await supabase.from('users').insert([
+        {
+          id,
+          email: user.email,
+          password: user.password,
+          first_name: user.firstName,
+          last_name: user.lastName,
+        },
+      ]);
+      if (insertError) throw insertError;
+      setError(null);
+      setMode('sign-in');
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error creating user');
+      console.log(err);
       return false;
     }
-    setUsers([...users, user]);
-    setError(null);
-    setMode('sign-in');
-    return true;
   };
 
-  const handleSignIn = (email: string, password: string) => {
-    if (email === 'test@test.com' && password === 'test') {
-      // success
+  // Directly query users table
+  const handleSignIn = async (email: string, password: string) => {
+    try {
+      const { data, error: selectError } = await supabase
+        .from('users')
+        .select('email, first_name, last_name')
+        .eq('email', email)
+        .eq('password', password)
+        .single();
+      if (selectError || !data) throw selectError || new Error('Invalid credentials');
       setError(null);
       onLoginSuccess({
-        email: 'test@test.com',
-        password: 'test',
-        firstName: 'Test',
-        lastName: 'User'
+        email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
       });
       return true;
-    }
-    const user = users.find(u => u.email === email && u.password === password);
-    if (!user) {
+    } catch (err) {
       setError('Invalid credentials');
       return false;
     }
-    setError(null);
-    onLoginSuccess(user);
-    return true;
   };
 
   return mode === 'sign-in' ? (
