@@ -22,7 +22,7 @@ const screens = [
 ];
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector' | 'trip-overview'>('trip-overview');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector' | 'trip-overview'>('welcome');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
   const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [isMobile, setIsMobile] = useState(false);
@@ -207,6 +207,7 @@ export default function Home() {
           <TripOverview
             group={group}
             user={user}
+            onSignOut={handleSignOut}
             onBack={() => setCurrentScreen('groups')}
           />
         );

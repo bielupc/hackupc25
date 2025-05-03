@@ -1,16 +1,13 @@
 'use client'
 import { HeroHighlight, Highlight } from "../ui/hero-highlight";
-<<<<<<< HEAD
 import type { User } from './auth-page';
-=======
 import { ArrowLeft, Bell, Calendar, MapPin, Users, Clock, ChevronRight, Music } from "lucide-react"
 import React, { useState, useRef, useEffect } from "react";
 import { Image } from "lucide-react";
-
 import { motion} from "framer-motion";
+import { Header } from '../header';
 
 
->>>>>>> 21be103 (Add trip oveview page)
 
 interface TripOverviewProps {
   group: { id: string; name: string; code: string } | null;
@@ -18,11 +15,12 @@ interface TripOverviewProps {
   onBack: () => void;
 }
 
-export function TripOverview({ group, user, onBack }: TripOverviewProps) {
+export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewProps) {
   const [showTitle, setShowTitle] = useState(true);
 
   return (
-    <div className='h-[400rem] overflow-scroll bg-blue-100/40 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
+    <div className='h-[400rem] overflow-scroll bg-blue-100/40 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pt-4'>
+
       {showTitle ? (
         <HeroHighlight>
           <motion.h1
@@ -62,10 +60,14 @@ export function TripOverview({ group, user, onBack }: TripOverviewProps) {
           transition={{ delay: 0, duration: 0.5 }}
           className="mt-8 text-center h-full"
         >
-          <div className="pt-1 py-6">
-            {/* Additional content can be added here */}
-<<<<<<< HEAD
-=======
+      
+            <div className="pt-0 py-6">
+        <Header
+          user={user}
+          onBack={onBack}
+          onSignOut={onSignOut}
+        />
+
             <TripSummary destination={tripData.destination} dates={tripData.dates} travelers={tripData.travelers} />
             <div className="p-4 m-4">
               <h2 className="text-xl font-bold mb-4">Your Trip Vibes</h2>
@@ -82,7 +84,6 @@ export function TripOverview({ group, user, onBack }: TripOverviewProps) {
               </button>
             </div>
 
->>>>>>> 21be103 (Add trip oveview page)
           </div>
         </motion.div>
       )}
