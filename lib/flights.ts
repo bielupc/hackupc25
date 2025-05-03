@@ -1,6 +1,6 @@
-const getFlights = async () => {
+export const getFlights = async () => {
     try {
-      const response = await fetch('/flights_api');
+      const response = await fetch('/api/skyscanner');
       const data = await response.json();
   
       if (!response.ok) {
