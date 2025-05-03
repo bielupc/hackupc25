@@ -186,7 +186,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
           </div>
           <h3 className="text-lg font-semibold mb-2 px-4">Your Groups</h3>
           {isLoading ? <div>Loading...</div> : (
-            <ul className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <ul className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4">
               {groups.map((g) => (
                 <li key={g.id} className="bg-white rounded-xl p-4 shadow">
                   <div className="flex justify-between items-center mb-3">
