@@ -55,12 +55,12 @@ export default function Home() {
         if (data.palette) setSelectedPalette(data.palette);
         if (data.selected_images) setSelectedImages(data.selected_images);
         if (data.selected_songs) setSelectedSongs(data.selected_songs);
-        if (data.selected_album) setSelectedAlbum(data.selected_album);
+        // if (data.selected_album) setSelectedAlbum(data.selected_album);
       } else {
         setSelectedPalette('Sunset');
         setSelectedImages([]);
         setSelectedSongs([]);
-        setSelectedAlbum(null);
+        // setSelectedAlbum(null);
       }
     };
     loadPreferences();
@@ -114,12 +114,12 @@ export default function Home() {
         if (data.palette) setSelectedPalette(data.palette);
         if (data.selected_images) setSelectedImages(data.selected_images);
         if (data.selected_songs) setSelectedSongs(data.selected_songs);
-        if (data.selected_album) setSelectedAlbum(data.selected_album);
+        // if (data.selected_album) setSelectedAlbum(data.selected_album);
       } else {
         setSelectedPalette('Sunset');
         setSelectedImages([]);
         setSelectedSongs([]);
-        setSelectedAlbum(null);
+        // setSelectedAlbum(null);
       }
     }
     setCurrentScreen('home');

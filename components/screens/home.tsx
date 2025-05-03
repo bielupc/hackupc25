@@ -1,21 +1,18 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
-import { supabase } from '../../lib/supabase';
-import { Header } from '../header';
+
+
 
 interface HomeScreenProps {
   user?: User | null;
-  group?: { id: string; name: string; code: string } | null;
   onNext: () => void;
-  onBack: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
-  setSelectedPalette: React.Dispatch<React.SetStateAction<string>>;
   onSongSelect?: () => void;
   selectedSongs: Song[];
   setSelectedSongs: React.Dispatch<React.SetStateAction<Song[]>>;
@@ -25,12 +22,9 @@ interface HomeScreenProps {
 
 export function HomeScreen({ 
   user,
-  group,
   onNext, 
-  onBack,
   onPaletteSelect, 
   selectedPalette = 'Sunset',
-  setSelectedPalette,
   onSongSelect,
   selectedSongs,
   setSelectedSongs,
@@ -38,23 +32,6 @@ export function HomeScreen({
   setSelectedImages,
 }: HomeScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
-
-  // Save preferences when they change
-  useEffect(() => {
-    const savePreferences = async () => {
-      if (!user?.id || !group?.id) return;
-      await supabase.from('group_preferences').upsert({
-        user_id: user.id,
-        group_id: group.id,
-        palette: selectedPalette,
-        selected_images: selectedImages,
-        selected_songs: selectedSongs,
-        selected_album: selectedAlbum,
-      });
-    };
-    savePreferences();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, group?.id, selectedPalette, selectedImages, selectedSongs, selectedAlbum]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -84,107 +61,34 @@ export function HomeScreen({
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
 
-  const handleSubmitPreferences = async () => {
+  const handleGenerateIdeas = async () => {
     try {
       setIsLoading(true);
       
-      // Check if both images and songs are selected
-      if (!selectedImages.length || !selectedSongs.length) {
-        console.error('Both images and songs must be selected');
-        return;
-      }
-
-      // Save preferences
-      if (!user?.id || !group?.id) return;
-      await supabase.from('group_preferences').upsert({
-        user_id: user.id,
-        group_id: group.id,
-        palette: selectedPalette,
-        selected_images: selectedImages,
-        selected_songs: selectedSongs,
-        selected_album: selectedAlbum,
+      const response = await fetch('/api/travel/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          images: selectedImages,
+          palette: selectedPalette,
+          songs: selectedSongs.map(song => song.title),
+        }),
       });
 
-      // Check if all members have submitted preferences
-      const { data: groupMembers, error: membersError } = await supabase
-        .from('user_groups')
-        .select('user_id')
-        .eq('group_id', group.id);
-      
-      const { data: submittedPreferences, error: preferencesError } = await supabase
-        .from('group_preferences')
-        .select('user_id, selected_images, selected_songs, palette')
-        .eq('group_id', group.id);
-
-      if (membersError || preferencesError) {
-        console.error('Error checking group members or preferences:', membersError || preferencesError);
-        return;
+      if (!response.ok) {
+        throw new Error('Failed to generate recommendations');
       }
 
-      // Check if all members have submitted complete preferences
-      const allMembersSubmitted = groupMembers && submittedPreferences && 
-        groupMembers.length === submittedPreferences.length &&
-        groupMembers.every(member => {
-          const memberPreferences = submittedPreferences.find(pref => pref.user_id === member.user_id);
-          return memberPreferences && 
-                 memberPreferences.selected_images && 
-                 memberPreferences.selected_images.length > 0 &&
-                 memberPreferences.selected_songs && 
-                 memberPreferences.selected_songs.length > 0;
-        });
+      const data = await response.json();
+      localStorage.setItem('lastTravelRecommendation', JSON.stringify(data));
 
-      if (allMembersSubmitted) {
-        // All members have submitted complete preferences, generate activities
-        try {
-          // Combine all preferences
-          const allImages = submittedPreferences.flatMap(pref => pref.selected_images || []);
-          const allSongs = submittedPreferences.flatMap(pref => pref.selected_songs || []);
-          const allPalettes = submittedPreferences.map(pref => pref.palette);
-
-          // Get unique values
-          const uniqueImages = [...new Set(allImages)];
-          const uniquePalettes = [...new Set(allPalettes)];
-
-          // Generate recommendations
-          const response = await fetch('/api/travel/recommendations', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              images: uniqueImages,
-              palette: uniquePalettes.join(', '),
-              albumMood: allSongs.map(song => song.title).join(', ')
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to generate recommendations');
-          }
-
-          const recommendations = await response.json();
-          
-          // Save recommendations to the group
-          const { error: updateError } = await supabase
-            .from('groups')
-            .update({ 
-              state: 'activities',
-              recommendations: recommendations
-            })
-            .eq('id', group.id);
-
-          if (updateError) {
-            console.error('Error updating group state:', updateError);
-          }
-        } catch (error) {
-          console.error('Error generating recommendations:', error);
-        }
-      }
-
-      // Always redirect to groups screen after submission
+      // After successful API call, proceed to next screen
       onNext();
     } catch (error) {
-      console.error('Error submitting preferences:', error);
+      console.error('Error generating travel ideas:', error);
+      // You might want to show an error message to the user here
     } finally {
       setIsLoading(false);
     }
@@ -192,7 +96,29 @@ export function HomeScreen({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-4">
-      <Header user={user} onBack={onBack} />
+
+      {/* Header */}
+      <div className="p-4 flex items-center justify-between bg-white backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">
+        <div className="flex items-center space-x-3">
+          <button className="p-2 rounded-lg bg-gray-100 text-gray-600">
+            <Grid size={20} />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white shadow-md"></div>
+          <div>
+            <p className="text-xs text-gray-500">Hello,</p>
+            <p className="font-semibold -mt-1">{user?.firstName || 'User'}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button className="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+            <Bell size={20} />
+            <span className="absolute top-1 right-1 block h-4 w-4 rounded-full bg-blue-500 text-white text-[10px] font-bold leading-tight text-center border-2 border-white/80">
+              3
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="flex-grow px-6 space-y-8 pb-6">
         {/* Mood Board Section */}
@@ -323,16 +249,16 @@ export function HomeScreen({
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700'
           } text-white`}
-          onClick={handleSubmitPreferences}
+          onClick={handleGenerateIdeas}
           disabled={isLoading || selectedImages.length === 0 || selectedSongs.length === 0}
         >
           {isLoading 
-            ? 'Submitting...' 
+            ? 'Generating Ideas...' 
             : selectedImages.length === 0 
               ? 'Add at least one image'
               : selectedSongs.length === 0
                 ? 'Add at least one song'
-                : 'Submit Preferences'
+                : 'Generate Travel Ideas'
           }
         </button>
       </div>
