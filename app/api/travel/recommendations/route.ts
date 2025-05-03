@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     3. Notable objects or elements
     4. Clothing styles or fashion elements
 
-    Format the response as JSON with the following structure:
+    Format the response as a single JSON dictionary with the following structure (a single one for all images):
     {
       "places": ["string"],
       "vibe": "string",
@@ -52,14 +52,54 @@ export async function POST(request: Request) {
       imageAnalysisResponse.output_text.replace(/```json\s*|\s*```/g, "")
     );
 
+    // Validate and ensure the image analysis has the required structure
+    const validateAnalysis = (analysis: any) => ({
+      places: Array.isArray(analysis?.places) ? analysis.places : [],
+      vibe: analysis?.vibe || "neutral",
+      objects: Array.isArray(analysis?.objects) ? analysis.objects : [],
+      clothing: Array.isArray(analysis?.clothing) ? analysis.clothing : [],
+    });
+
+    // Combine multiple image analyses if they exist
+    const combinedAnalysis = Array.isArray(imageAnalysis)
+      ? {
+          places: [
+            ...new Set(
+              imageAnalysis.flatMap(
+                (analysis) => validateAnalysis(analysis).places
+              )
+            ),
+          ],
+          vibe: imageAnalysis
+            .map((analysis) => validateAnalysis(analysis).vibe)
+            .join(", "),
+          objects: [
+            ...new Set(
+              imageAnalysis.flatMap(
+                (analysis) => validateAnalysis(analysis).objects
+              )
+            ),
+          ],
+          clothing: [
+            ...new Set(
+              imageAnalysis.flatMap(
+                (analysis) => validateAnalysis(analysis).clothing
+              )
+            ),
+          ],
+        }
+      : validateAnalysis(imageAnalysis);
+
+    console.log("Image Analysis:", imageAnalysis);
+    console.log("Combined Analysis:", combinedAnalysis);
     // Second prompt using the image analysis results
     const finalPrompt = `Based on the following analysis of inspiration images and additional preferences, recommend a travel destination and activities.
 
     Image Analysis:
-    - Places identified: ${imageAnalysis.places.join(", ")}
-    - Overall vibe: ${imageAnalysis.vibe}
-    - Notable objects: ${imageAnalysis.objects.join(", ")}
-    - Clothing styles: ${imageAnalysis.clothing.join(", ")}
+    - Places identified: ${combinedAnalysis.places.join(", ")}
+    - Overall vibe: ${combinedAnalysis.vibe}
+    - Notable objects: ${combinedAnalysis.objects.join(", ")}
+    - Clothing styles: ${combinedAnalysis.clothing.join(", ")}
     
     Additional Preferences:
     - Color palette mood: ${palette}

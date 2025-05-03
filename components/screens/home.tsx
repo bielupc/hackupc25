@@ -250,12 +250,21 @@ export function HomeScreen({
           className={`w-full py-4 rounded-full font-semibold text-lg shadow-md transition-all duration-200 ${
             isLoading 
               ? 'bg-blue-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              : selectedImages.length === 0 || selectedSongs.length === 0
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
           } text-white`}
           onClick={handleGenerateIdeas}
-          disabled={isLoading}
+          disabled={isLoading || selectedImages.length === 0 || selectedSongs.length === 0}
         >
-          {isLoading ? 'Generating Ideas...' : 'Generate Travel Ideas'}
+          {isLoading 
+            ? 'Generating Ideas...' 
+            : selectedImages.length === 0 
+              ? 'Add at least one image'
+              : selectedSongs.length === 0
+                ? 'Add at least one song'
+                : 'Generate Travel Ideas'
+          }
         </button>
       </div>
     </div>
