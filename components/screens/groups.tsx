@@ -195,7 +195,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
                       className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition-colors"
                       onClick={() => handleGroupClick(g)}
                     >
-                      {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'View Trip Overview'}
+                      {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'Go to Travel'}
                     </button>
                   </div>
                   <div className="mt-2">
