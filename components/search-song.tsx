@@ -17,18 +17,30 @@ export default function SongSearcher({ onSelect }: SongSearcherProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Fetch default songs on component mount
+  useEffect(() => {
+    const fetchDefaultSongs = async () => {
+      const res = await fetch('/api/itunes?q=top');
+      const data = await res.json();
+      setResults(data.results || []);
+    };
+    fetchDefaultSongs();
+  }, []);
 
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
+      setIsSearching(false);
       return;
     }
 
+    setIsSearching(true);
     if (typingTimeout) clearTimeout(typingTimeout);
 
     const timeout = setTimeout(async () => {
       const res = await fetch(`/api/itunes?q=${encodeURIComponent(query)}`);
-      console.log(res)
       const data = await res.json();
       setResults(data.results || []);
     }, 500); 
@@ -56,7 +68,7 @@ export default function SongSearcher({ onSelect }: SongSearcherProps) {
           {results.map((song) => (
             <li onClick={() => onSelect(formatSong(song))}
               key={song.trackId}
-              className="p-3 border rounded-lg bg-white shadow-sm hover:bg-gray-50 transition flex items-center"
+              className="p-3 border rounded-lg bg-white shadow-sm hover:bg-gray-50 transition flex items-center cursor-pointer"
             >
               <img
           src={song.artworkUrl100}
