@@ -8,11 +8,11 @@ import { motion} from "framer-motion";
 import { Header } from '../header';
 
 
-
 interface TripOverviewProps {
   group: { id: string; name: string; code: string } | null;
   user: User | null;
   onBack: () => void;
+  onSignOut: () => void;
 }
 
 export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewProps) {
@@ -79,7 +79,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
             <ItinerarySection itinerary={tripData.itinerary} />
             
             <div className="px-4 ">
-              <button className="bottom-4 w-3/4 bg-blue-500 hover:bg-blue-600 text-white rounded-full py-4 font-medium">
+              <button onClick={onBack} className="bottom-4 w-3/4 bg-blue-500 hover:bg-blue-600 text-white rounded-full py-4 font-medium">
                 Save this trip
               </button>
             </div>
@@ -110,7 +110,15 @@ function TripSummary({ destination, dates, travelers }) {
             <p className="font-medium">{dates}</p>
           </div>
         </div>
-
+        <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <span className="text-blue-500 text-lg">€</span>
+            </div>
+            <div>
+            <p className="text-sm text-left text-gray-500">Cost</p>
+            <p className="font-medium">300€</p>
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <Users className="h-5 w-5 text-blue-500" />
