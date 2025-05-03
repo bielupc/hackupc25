@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { MobileMockup } from "@/components/mobile-mockup";
-import { SignInScreen } from "@/components/screens/sign-in";
 import { HomeScreen } from "@/components/screens/home";
 import { TravelScreen } from "@/components/screens/travel";
 import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
+import { AuthPage, User } from "@/components/screens/auth-page";
 
 const screens = [
   WelcomeScreen, 
-  SignInScreen,
+  AuthPage,
   HomeScreen,
   TravelScreen,
   // Add more screens here as needed
@@ -22,6 +22,7 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -65,21 +66,12 @@ export default function Home() {
             setSelectedAlbum={setSelectedAlbum}
           />
         );
-
       case 'sign-in':
-        return (
-          <SignInScreen
-            onNext={() => setCurrentScreen('home')}
-            selectedPalette={selectedPalette}
-            selectedImages={selectedImages}
-            setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
-          />
-        );
+        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} />;
       case 'home':
         return (
           <HomeScreen
+            user={user}
             onNext={() => setCurrentScreen('travel')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}

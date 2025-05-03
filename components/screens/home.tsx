@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
 import SongSearcher from '@/components/search-song';
+import type { User } from './auth-page';
 
 interface HomeScreenProps {
+  user?: User | null;
   onNext: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
@@ -47,6 +49,7 @@ const curatedAlbums = [
 ];
 
 export function HomeScreen({ 
+  user,
   onNext, 
   onPaletteSelect, 
   selectedPalette = 'Sunset',
@@ -129,7 +132,7 @@ export function HomeScreen({
           <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white shadow-md"></div>
           <div>
             <p className="text-xs text-gray-500">Hello,</p>
-            <p className="font-semibold">Samms</p>
+            <p className="font-semibold">{user?.firstName || 'User'}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
