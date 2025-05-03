@@ -122,8 +122,16 @@ export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProp
             <ul className="space-y-2">
               {groups.map((g) => (
                 <li key={g.id} className="bg-white rounded-xl p-4 shadow flex justify-between items-center">
-                  <span>{g.name}</span>
-                  <span className="text-xs text-gray-400">Code: {g.code}</span>
+                  <div>
+                    <span>{g.name}</span>
+                    <span className="text-xs text-gray-400 ml-2">Code: {g.code}</span>
+                  </div>
+                  <button
+                    className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition-colors"
+                    onClick={() => onGroupSelected(g)}
+                  >
+                    Go to Home
+                  </button>
                 </li>
               ))}
               {groups.length === 0 && <li className="text-gray-500">You are not in any groups yet.</li>}

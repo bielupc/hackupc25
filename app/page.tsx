@@ -10,6 +10,7 @@ import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
 import type { Song } from "@/components/search-song";
 import { GroupsScreen } from "@/components/screens/groups";
+import { supabase } from "@/lib/supabase";
 
 const screens = [
   WelcomeScreen, 
@@ -39,6 +40,32 @@ export default function Home() {
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Load preferences when user or group changes
+  useEffect(() => {
+    const loadPreferences = async () => {
+      if (!user?.id || !group?.id) return;
+      const { data } = await supabase
+        .from('group_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('group_id', group.id)
+        .single();
+      if (data) {
+        if (data.palette) setSelectedPalette(data.palette);
+        if (data.selected_images) setSelectedImages(data.selected_images);
+        if (data.selected_songs) setSelectedSongs(data.selected_songs);
+        if (data.selected_album) setSelectedAlbum(data.selected_album);
+      } else {
+        setSelectedPalette('Sunset');
+        setSelectedImages([]);
+        setSelectedSongs([]);
+        setSelectedAlbum(null);
+      }
+    };
+    loadPreferences();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, group?.id]);
 
   const handlePaletteSelect = (palette: string) => {
     setSelectedPalette(palette);
@@ -74,8 +101,27 @@ export default function Home() {
     setCurrentScreen('groups');
   };
 
-  const handleGroupSelected = (group: { id: string; name: string; code: string }) => {
+  const handleGroupSelected = async (group: { id: string; name: string; code: string }) => {
     setGroup(group);
+    if (user?.id && group?.id) {
+      const { data } = await supabase
+        .from('group_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('group_id', group.id)
+        .single();
+      if (data) {
+        if (data.palette) setSelectedPalette(data.palette);
+        if (data.selected_images) setSelectedImages(data.selected_images);
+        if (data.selected_songs) setSelectedSongs(data.selected_songs);
+        if (data.selected_album) setSelectedAlbum(data.selected_album);
+      } else {
+        setSelectedPalette('Sunset');
+        setSelectedImages([]);
+        setSelectedSongs([]);
+        setSelectedAlbum(null);
+      }
+    }
     setCurrentScreen('home');
   };
 
@@ -106,9 +152,11 @@ export default function Home() {
         return (
           <HomeScreen
             user={user}
+            group={group}
             onNext={() => setCurrentScreen('travel')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
+            setSelectedPalette={setSelectedPalette}
             onSongSelect={() => setCurrentScreen('song-selector')}
             selectedSongs={selectedSongs}
             setSelectedSongs={setSelectedSongs}

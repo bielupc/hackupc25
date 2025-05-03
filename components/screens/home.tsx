@@ -1,18 +1,19 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
-
-
+import { supabase } from '../../lib/supabase';
 
 interface HomeScreenProps {
   user?: User | null;
+  group?: { id: string; name: string; code: string } | null;
   onNext: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
+  setSelectedPalette: React.Dispatch<React.SetStateAction<string>>;
   onSongSelect?: () => void;
   selectedSongs: Song[];
   setSelectedSongs: React.Dispatch<React.SetStateAction<Song[]>>;
@@ -24,9 +25,11 @@ interface HomeScreenProps {
 
 export function HomeScreen({ 
   user,
+  group,
   onNext, 
   onPaletteSelect, 
   selectedPalette = 'Sunset',
+  setSelectedPalette,
   onSongSelect,
   selectedSongs,
   setSelectedSongs,
@@ -37,6 +40,23 @@ export function HomeScreen({
 }: HomeScreenProps) {
   const [showAlbumSelector, setShowAlbumSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Save preferences when they change
+  useEffect(() => {
+    const savePreferences = async () => {
+      if (!user?.id || !group?.id) return;
+      await supabase.from('group_preferences').upsert({
+        user_id: user.id,
+        group_id: group.id,
+        palette: selectedPalette,
+        selected_images: selectedImages,
+        selected_songs: selectedSongs,
+        selected_album: selectedAlbum,
+      });
+    };
+    savePreferences();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, group?.id, selectedPalette, selectedImages, selectedSongs, selectedAlbum]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
