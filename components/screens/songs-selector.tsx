@@ -15,7 +15,7 @@ export function SongSelector({ onBack, onSelect, selectedSongs}: SongSelectorPro
       <div className="pt-4 px-4 flex items-center backdrop-blur-sm">
         <button
           onClick={onBack}
-          className="p-2 rounded-lg text-gray-600 hover:bg-blue-200 transition-all duration-200 flex items-center"
+          className="p-2 rounded-lg text-gray-600 hover:text-gray-900 transition-all duration-200 flex items-center"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           <span>Back</span>
