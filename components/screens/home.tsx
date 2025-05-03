@@ -1,20 +1,48 @@
-import React from 'react';
-import { MapPin, Search, Grid, Bell, ChevronDown } from 'lucide-react';
+'use client'
+
+import React, { useState } from 'react';
+import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X } from 'lucide-react';
 
 interface HomeScreenProps {
   onNext: () => void;
+  onPaletteSelect?: () => void;
+  selectedPalette?: string;
 }
 
-export function HomeScreen({ onNext }: HomeScreenProps) {
+const colorPalettes = [
+  { name: 'Sunset', colors: ['#FF6B6B', '#FFE66D', '#4ECDC4'] },
+  { name: 'Ocean', colors: ['#1A535C', '#4ECDC4', '#F7FFF7'] },
+  { name: 'Forest', colors: ['#2D6A4F', '#74C69D', '#D8F3DC'] },
+  { name: 'Desert', colors: ['#E9C46A', '#F4A261', '#E76F51'] },
+];
+
+export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset' }: HomeScreenProps) {
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [spotifyUrl, setSpotifyUrl] = useState<string>('');
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newImages = Array.from(files).map(file => URL.createObjectURL(file));
+      setSelectedImages(prev => [...prev, ...newImages].slice(0, 6));
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
+
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm m-4">
+      <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">
         <div className="flex items-center space-x-3">
           <button className="p-2 rounded-lg bg-gray-100 text-gray-600">
             <Grid size={20} />
           </button>
-          <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white shadow-md"></div> {/* Placeholder for avatar */}
+          <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white shadow-md"></div>
           <div>
             <p className="text-xs text-gray-500">Hello,</p>
             <p className="font-semibold">Samms</p>
@@ -31,59 +59,89 @@ export function HomeScreen({ onNext }: HomeScreenProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-grow flex flex-col items-center justify-center px-6 text-center relative">
-        {/* Background decorations */}
-        <div className="absolute top-1/4 left-1/4 w-16 h-16 bg-green-300/50 rounded-full blur-xl"></div>
-        <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-green-500 rounded-full"></div>
-        <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-green-500 rounded-full"></div>
-
-        {/* Location Pin */}
-        <div className="relative mb-6">
-          <div className="p-4 bg-green-100 rounded-full animate-pulse">
-            <div className="p-3 bg-green-200 rounded-full">
-              <MapPin size={32} className="text-green-600" />
-            </div>
+      <div className="flex-grow px-6 space-y-8 pb-6">
+        {/* Image Upload Section */}
+        <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
+          <div className="grid grid-cols-3 gap-4">
+            {selectedImages.map((image, index) => (
+              <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group">
+                <img src={image} alt={`Uploaded ${index + 1}`} className="w-full h-full object-cover" />
+                <button
+                  onClick={() => removeImage(index)}
+                  className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/70"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+            {selectedImages.length < 6 && (
+              <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all duration-200 hover:bg-blue-50/50 group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+                <Camera size={28} className="text-gray-400 group-hover:text-blue-500 mb-2" />
+              </label>
+            )}
           </div>
         </div>
 
-        <h2 className="text-3xl font-bold mb-2">Search around</h2>
-        <h2 className="text-3xl font-bold mb-6">the world</h2>
-
-        <button className="px-6 py-2 mb-12 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors">
-          Skip
+        {/* Color Palette Preview */}
+        <button 
+          onClick={() => onPaletteSelect?.()}
+          className="w-full bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:bg-white/70 transition-all duration-200"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex -space-x-2">
+                {currentPalette.colors.map((color, i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+              <span className="font-medium text-gray-700">{currentPalette.name}</span>
+            </div>
+            <ChevronDown size={20} className="text-gray-400" />
+          </div>
         </button>
 
-        {/* Dashed line illustration */}
-        <div className="absolute bottom-24 left-10 w-24 h-16">
-          <svg width="100%" height="100%" viewBox="0 0 100 60" preserveAspectRatio="none">
-            <path d="M5 50 Q 30 60, 50 40 T 95 5" stroke="#D1D5DB" strokeWidth="2" fill="none" strokeDasharray="4 4" markerEnd="url(#arrow)"/>
-            <defs>
-              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#D1D5DB" />
-              </marker>
-            </defs>
-          </svg>
-        </div>
-      </div>
-
-      {/* Bottom Search Bar */}
-      <div className="p-4 w-full">
-        <div className="flex items-center bg-blue-600 text-white p-3 rounded-full shadow-lg">
-          <MapPin size={20} className="ml-2 mr-3" />
-          <span className="font-medium">Search in</span>
-          <button className="flex items-center ml-2 mr-auto">
-            <span className="font-bold">Location</span>
-            <ChevronDown size={16} className="ml-1" />
-          </button>
-          <button className="p-2 bg-white/20 rounded-full hover:bg-white/30">
-            <Search size={20} />
-          </button>
+        {/* Spotify Playlist Section */}
+        <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2">
+              <Music size={20} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Add your Spotify playlist"
+              value={spotifyUrl}
+              onChange={(e) => setSpotifyUrl(e.target.value)}
+              className="w-full pl-12 pr-12 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50"
+            />
+            {spotifyUrl && (
+              <button
+                onClick={() => setSpotifyUrl('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Next Button */}
       <div className="p-4 w-full">
-        <button className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors" onClick={onNext}>
+        <button
+          className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-all duration-200"
+          onClick={onNext}
+        >
           Next
         </button>
       </div>
