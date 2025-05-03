@@ -181,7 +181,7 @@ export function TravelScreen({ onNext, onBack, user, group, onSignOut }: TravelS
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 items-center justify-center">
+      <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         <p className="mt-4 text-gray-600">Loading recommendations...</p>
       </div>
@@ -190,7 +190,7 @@ export function TravelScreen({ onNext, onBack, user, group, onSignOut }: TravelS
 
   if (!recommendation) {
     return (
-      <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 items-center justify-center p-6">
+      <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 items-center justify-center p-6">
         <p className="text-gray-600 text-center">No recommendations available. Please try generating new ideas.</p>
         <button
           onClick={onBack}

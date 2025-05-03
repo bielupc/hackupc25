@@ -12,7 +12,7 @@ export function SongSelector({ onBack, onSelect, selectedSongs}: SongSelectorPro
   return (
      <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white">
       {/* Header */}
-      <div className="p-4 flex items-center backdrop-blur-sm">
+      <div className="pt-4 px-4 flex items-center backdrop-blur-sm">
         <button
           onClick={onBack}
           className="p-2 rounded-lg text-gray-600 hover:bg-blue-200 transition-all duration-200 flex items-center"
@@ -23,7 +23,7 @@ export function SongSelector({ onBack, onSelect, selectedSongs}: SongSelectorPro
       </div>
 
       {/* Song Grid */}
-      <div className="my-2 px-4 relative overflow-scroll">
+      <div className="mb-2 px-4 relative overflow-scroll">
         <SongSearcher onSelect={onSelect} />
       </div>
           
