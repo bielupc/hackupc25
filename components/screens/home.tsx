@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
+import SongSearcher from '@/components/search-song';
 
 interface HomeScreenProps {
   onNext: () => void;
@@ -118,6 +119,7 @@ export function HomeScreen({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+
       {/* Header */}
       <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">
         <div className="flex items-center space-x-3">
@@ -211,7 +213,18 @@ export function HomeScreen({
               Select Mood Music
             </h2>
           </div>
+          <div className="my-6 px-0 relative">
+            <SongSearcher />
+            {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search for music..."
+              className="w-full pl-10 pr-4 py-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+            /> */}
+          </div>
           
+
+{/*           
           <div className="grid grid-cols-2 gap-4">
             {curatedAlbums.map((album) => (
               <button
@@ -241,7 +254,7 @@ export function HomeScreen({
                 )}
               </button>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
 

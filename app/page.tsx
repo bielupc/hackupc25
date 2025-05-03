@@ -6,9 +6,18 @@ import { SignInScreen } from "@/components/screens/sign-in";
 import { HomeScreen } from "@/components/screens/home";
 import { TravelScreen } from "@/components/screens/travel";
 import { PaletteSelector } from "@/components/screens/palette-selector";
+import { WelcomeScreen } from "@/components/screens/welcome";
+
+const screens = [
+  WelcomeScreen, 
+  SignInScreen,
+  HomeScreen,
+  TravelScreen,
+  // Add more screens here as needed
+];
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<'sign-in' | 'home' | 'travel' | 'palette-selector'>('sign-in');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'home' | 'travel' | 'palette-selector'>('welcome');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -45,6 +54,18 @@ export default function Home() {
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'welcome':
+        return (
+          <WelcomeScreen 
+            onNext={() => setCurrentScreen('sign-in')}
+            selectedPalette={selectedPalette}
+            selectedImages={selectedImages}
+            setSelectedImages={setSelectedImages}
+            selectedAlbum={selectedAlbum}
+            setSelectedAlbum={setSelectedAlbum}
+          />
+        );
+
       case 'sign-in':
         return (
           <SignInScreen
