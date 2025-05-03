@@ -67,37 +67,40 @@ export function HomeScreen({
     try {
       setIsLoading(true);
       
-      /*
-      const response = await fetch('/api/travel/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          images: selectedImages,
-          palette: selectedPalette,
-          songs: selectedSongs.map(song => song.title),
-        }),
-      });
+      
+      // const response = await fetch('/api/travel/recommendations', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     images: selectedImages,
+      //     palette: selectedPalette,
+      //     songs: selectedSongs.map(song => song.title),
+      //   }),
+      // });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate recommendations');
-      }
+      // if (!response.ok) {
+      //   throw new Error('Failed to generate recommendations');
+      // }
 
-      const data = await response.json();
-      */
+      // const data = await response.json();
+  
 
       // override activities with the activities from our api
 
       // example start.gte '2025-05-01T00:00:00'
       // example start.lte '2025-05-31T23:59:59'
       const data = {
-        'place': 'BCN',
+        'destination': 'San Diego, California',
+        'explanation': "San Diego offers a casual and relaxed atmosphere with beautiful beaches, sunny weather, and a laid-back coastal vibe. The cool color palette of the ocean and sky complements the desired mood, making it an ideal destination for shorts, t-shirts, and summer attire. With activities like beach lounging, exploring Balboa Park, and capturing stunning sunsets with your camera, San Diego aligns perfectly with your inspiration images",
+        'placeCode': 'KSAN',
         'startDate': '2025-05-01T00:00:00',
         'endDate': '2025-05-31T23:59:59',
         'activities': void[],
       }
-      console.log('hola');
+      data.startDate = '2025-05-01T00:00:00';
+      data.endDate = '2025-05-31T23:59:59';
       data.activities = await getActivities(data);
       console.log('Generated travel ideas:', data);
   

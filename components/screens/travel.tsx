@@ -6,11 +6,17 @@ interface TravelScreenProps {
   onBack?: () => void;
 }
 
+interface TravelActivity {
+  title: string;
+  // TODO: Add more properties
+}
+
 interface TravelRecommendation {
   destination: string;
-  activities: string[];
+  activities: TravelActivity[];
   explanation: string;
 }
+
 
 interface PexelsMedia {
   id: number;
@@ -63,14 +69,14 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
     }
   };
 
-  const fetchActivityVideos = async (activities: string[]) => {
+  const fetchActivityVideos = async (activities: TravelActivity[]) => {
     const videos: { [key: string]: PexelsMedia[] } = {};
     for (const activity of activities) {
       try {
-        const response = await fetch(`/api/pexels?query=${encodeURIComponent(activity)}&type=video&per_page=3`);
+        const response = await fetch(`/api/pexels?query=${encodeURIComponent(activity.title)}&type=video&per_page=3`);
         const data = await response.json();
-        if (data.videos) {
-          videos[activity] = data.videos;
+        if (data.videos) {  
+          videos[activity.title] = data.videos;
         }
       } catch (error) {
         console.error('Error fetching activity videos:', error);
@@ -184,14 +190,15 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
         <div className="grid grid-cols-2 gap-4">
           {recommendation.activities.map((activity, index) => {
             // If this activity was last selected, show its video as selected
-            const isSelected = lastSelected && lastSelected.activity === activity;
-            const video = isSelected ? lastSelected.video : activityVideos[activity]?.[0];
-            const feedback = activityFeedback[activity];
+            const title = activity.title;
+            const isSelected = lastSelected && lastSelected.activity === title;
+            const video = isSelected ? lastSelected.video : activityVideos[title]?.[0];
+            const feedback = activityFeedback[title];
             return (
               <div key={index} className="aspect-square">
                 {video && (
                   <button
-                    onClick={() => setSelectedVideo({ activity, video })}
+                    onClick={() => setSelectedVideo({ activity: title, video })}
                     className={`w-full h-full rounded-xl overflow-hidden relative group border-4 ${isSelected ? 'border-blue-500' : 'border-transparent'}`}
                   >
                     <video
