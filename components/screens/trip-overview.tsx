@@ -2,14 +2,15 @@
 import React, { useState } from 'react';
 import { motion } from "motion/react";
 import { HeroHighlight, Highlight } from "../ui/hero-highlight";
-
-
+import type { User } from './auth-page';
 
 interface TripOverviewProps {
+  group: { id: string; name: string; code: string } | null;
+  user: User | null;
+  onBack: () => void;
 }
 
-
-export function TripOverview({ }: TripOverviewProps) {
+export function TripOverview({ group, user, onBack }: TripOverviewProps) {
   const [showTitle, setShowTitle] = useState(true);
 
   return (
@@ -58,7 +59,6 @@ export function TripOverview({ }: TripOverviewProps) {
           </h1>
           <div className="mt-4">
             {/* Additional content can be added here */}
-
           </div>
         </motion.div>
       )}
