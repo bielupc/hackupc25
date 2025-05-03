@@ -21,8 +21,6 @@ interface HomeScreenProps {
   setSelectedSongs: React.Dispatch<React.SetStateAction<Song[]>>;
   selectedImages: string[];
   setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedAlbum: string | null;
-  setSelectedAlbum: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export function HomeScreen({ 
@@ -38,10 +36,7 @@ export function HomeScreen({
   setSelectedSongs,
   selectedImages,
   setSelectedImages,
-  selectedAlbum,
-  setSelectedAlbum
 }: HomeScreenProps) {
-  const [showAlbumSelector, setShowAlbumSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Save preferences when they change

@@ -8,6 +8,7 @@ import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
 import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
+import { TripOverview } from "@/components/screens/trip-overview";
 import type { Song } from "@/components/search-song";
 import { GroupsScreen } from "@/components/screens/groups";
 import { supabase } from "@/lib/supabase";
@@ -21,12 +22,11 @@ const screens = [
 ];
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector' | 'trip-overview'>('welcome');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
   const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [group, setGroup] = useState<{ id: string; name: string; code: string } | null>(null);
 
@@ -136,11 +136,6 @@ export default function Home() {
         return (
           <WelcomeScreen 
             onNext={() => setCurrentScreen('sign-in')}
-            selectedPalette={selectedPalette}
-            selectedImages={selectedImages}
-            setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
           />
         );
       case 'sign-in':
@@ -169,8 +164,6 @@ export default function Home() {
             setSelectedSongs={setSelectedSongs}
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
           />
         );
       case 'travel':
@@ -196,6 +189,11 @@ export default function Home() {
             onBack={handleBack}
             onSelect={handleSongSelect}
             selectedSongs={selectedSongs}
+          />
+        );
+      case 'trip-overview':
+        return (
+          <TripOverview
           />
         );
       default:
