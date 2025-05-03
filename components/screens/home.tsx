@@ -3,53 +3,33 @@
 import React, { useState } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
-import SongSearcher from '@/components/search-song';
+import type { User } from './auth-page';
+import type { Song } from '../search-song';
+
+
 
 interface HomeScreenProps {
+  user?: User | null;
   onNext: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
+  onSongSelect?: () => void;
+  selectedSongs: Song[];
+
   selectedImages: string[];
   setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
   selectedAlbum: string | null;
   setSelectedAlbum: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const curatedAlbums = [
-  {
-    id: '1',
-    name: 'Summer Vibes',
-    artist: 'Various Artists',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80',
-    mood: 'Energetic & Sunny'
-  },
-  {
-    id: '2',
-    name: 'Chill Beats',
-    artist: 'Lo-fi Collective',
-    image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=300&q=80',
-    mood: 'Relaxed & Cozy'
-  },
-  {
-    id: '3',
-    name: 'City Nights',
-    artist: 'Urban Sounds',
-    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=300&q=80',
-    mood: 'Urban & Modern'
-  },
-  {
-    id: '4',
-    name: 'Nature Sounds',
-    artist: 'Ambient Collective',
-    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=300&q=80',
-    mood: 'Peaceful & Natural'
-  }
-];
-
 export function HomeScreen({ 
+  user,
   onNext, 
   onPaletteSelect, 
   selectedPalette = 'Sunset',
+  onSongSelect,
+  selectedSongs,
+
   selectedImages,
   setSelectedImages,
   selectedAlbum,
@@ -81,12 +61,10 @@ export function HomeScreen({
   };
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
-  const selectedAlbumData = curatedAlbums.find(album => album.id === selectedAlbum);
 
   const handleGenerateIdeas = async () => {
     try {
       setIsLoading(true);
-      const selectedAlbumData = curatedAlbums.find(album => album.id === selectedAlbum);
       
       const response = await fetch('/api/travel/recommendations', {
         method: 'POST',
@@ -96,7 +74,7 @@ export function HomeScreen({
         body: JSON.stringify({
           images: selectedImages,
           palette: selectedPalette,
-          albumMood: selectedAlbumData?.mood || '',
+          songs: selectedSongs.map(song => song.title),
         }),
       });
 
@@ -129,7 +107,7 @@ export function HomeScreen({
           <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white shadow-md"></div>
           <div>
             <p className="text-xs text-gray-500">Hello,</p>
-            <p className="font-semibold">Samms</p>
+            <p className="font-semibold">{user?.firstName || 'User'}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -185,26 +163,6 @@ export function HomeScreen({
           </div>
         </div>
 
-        {/* Color Palette Preview */}
-        <button 
-          onClick={() => onPaletteSelect?.()}
-          className="relative w-full aspect-[3/1] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group"
-        >
-          <div className="w-full h-full flex transition-all duration-300 ease-in-out">
-            {currentPalette.colors.map((color, i) => (
-              <div
-                key={i}
-                className="flex-1 transition-colors duration-300 ease-in-out"
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200" />
-          <div className="absolute bottom-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
-            {selectedPalette}
-          </div>
-        </button>
-
         {/* Album Selection */}
         <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -213,48 +171,64 @@ export function HomeScreen({
               Select Mood Music
             </h2>
           </div>
-          <div className="my-6 px-0 relative">
-            <SongSearcher />
-            {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search for music..."
-              className="w-full pl-10 pr-4 py-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
-            /> */}
-          </div>
-          
-
-{/*           
-          <div className="grid grid-cols-2 gap-4">
-            {curatedAlbums.map((album) => (
-              <button
-                key={album.id}
-                onClick={() => setSelectedAlbum(album.id)}
-                className={`relative aspect-square rounded-2xl overflow-hidden group transition-all duration-200 ${
-                  selectedAlbum === album.id
-                    ? 'ring-4 ring-blue-500 shadow-lg'
-                    : 'hover:shadow-md'
-                }`}
+          <div className="grid grid-cols-2 gap-4 py-4">
+            {selectedSongs.map((song) => (
+              <div
+                key={song.id}
+                className="relative aspect-square rounded-2xl overflow-hidden group transition-all duration-200 hover:shadow-md"
               >
                 <img
-                  src={album.image}
-                  alt={album.name}
+                  src={song.image}
+                  alt={song.title}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
-                  <p className="text-white font-medium truncate">{album.name}</p>
-                  <p className="text-white/80 text-sm truncate">{album.artist}</p>
-                  <p className="text-white/60 text-xs mt-1">{album.mood}</p>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-white font-medium truncate">{song.title}</p>
                 </div>
-                {selectedAlbum === album.id && (
-                  <div className="absolute top-2 right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg">
-                    <Check size={20} />
-                  </div>
-                )}
-              </button>
+              </div>
             ))}
-          </div> */}
+            {selectedSongs.length < 2 && (
+              <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all duration-200 hover:bg-blue-50/50 group">
+                <button
+                  onClick={() => onSongSelect?.()}
+                  className="w-full h-full flex flex-col items-center justify-center"
+                >
+                  <Music size={28} className="text-gray-400 group-hover:text-blue-500 mb-2" />
+                  <span className="text-sm text-gray-500 group-hover:text-blue-500">Add song</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Color Palette Preview */}
+        <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center">
+              <Palette className="mr-2 text-blue-500" size={20} />
+              Select Color Palette
+            </h2>
+          </div>
+
+          <button 
+            onClick={() => onPaletteSelect?.()}
+            className="relative w-full aspect-[3/1] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group"
+          >
+            <div className="w-full h-full flex transition-all duration-300 ease-in-out">
+              {currentPalette.colors.map((color, i) => (
+                <div
+                  key={i}
+                  className="flex-1 transition-colors duration-300 ease-in-out"
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200" />
+            <div className="absolute bottom-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
+              {selectedPalette}
+            </div>
+          </button>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from "motion/react";
 import dynamic from "next/dynamic";
+import Image from 'next/image';
 
 interface WelcomeScreenProps {
   onNext: () => void;
@@ -313,26 +314,29 @@ export function WelcomeScreen({ onNext }: WelcomeScreenProps) {
   ];
 
   return (
-    <div className="bg-[] relative flex flex-col justify-center items-center h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-hidden pt-[7rem]">
-        <motion.h1
-          className="text-5xl text-center font-bold"
+    <div className="relative flex flex-col justify-center items-center h-full bg-white text-white overflow-hidden pt-[7rem]">
+        <motion.div
+          className="text-5xl text-center font-bold z-10 top-20 text-black"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          Welcome to <br/> Unpackr
-        </motion.h1>
+          Welcome to <br/>
+          <Image src="/logo_black.svg" alt="Unpackr" width={300} height={75} className="mt-2" />
+        </motion.div>
 
         <motion.p
-          className="text-center font-bold text-lg pt-10"
+          className="text-center font-bold text-lg pt-10 z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         > Let's get started!</motion.p>
 
-      <World data={sampleArcs} globeConfig={globeConfig} />
+      <div className="absolute left-1/2 -translate-x-1/2 translate-y-1/4 bottom-0 aspect-square w-[200%] h-auto">
+        <World data={sampleArcs} globeConfig={globeConfig} />
+      </div>
 
-      <div className="p-4 w-full mt-auto">
+      <div className="p-4 w-full mt-auto z-10">
         <motion.button
         onClick={onNext}
         className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors"
