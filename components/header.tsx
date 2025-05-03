@@ -15,7 +15,7 @@ export function Header({ user, onBack }: HeaderProps) {
         {onBack && (
           <button
             onClick={onBack}
-            className="mr-2 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            className="mr-2 p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             aria-label="Back"
           >
             <ArrowLeft size={20} />

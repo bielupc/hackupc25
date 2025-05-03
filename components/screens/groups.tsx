@@ -145,21 +145,21 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
   const handleBackToList = () => setMode('list');
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white p-4">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white py-4">
       <Header
         user={user}
         onBack={mode === 'create' || mode === 'join' ? handleBackToList : undefined}
       />
-      <h2 className="text-lg font-bold mb-2">Groups</h2>
+      <h2 className="text-lg font-bold mb-2 px-4">Groups</h2>
       {mode === 'list' && (
         <>
-          <div className="mb-6">
+          <div className="mb-6 px-4">
             <button onClick={() => setMode('create')} className="w-full bg-blue-600 text-white py-3 rounded-full font-semibold mb-2">Create Group</button>
             <button onClick={() => setMode('join')} className="w-full bg-gray-200 text-gray-800 py-3 rounded-full font-semibold">Join Group</button>
           </div>
-          <h3 className="text-lg font-semibold mb-2">Your Groups</h3>
+          <h3 className="text-lg font-semibold mb-2 px-4">Your Groups</h3>
           {isLoading ? <div>Loading...</div> : (
-            <ul className="space-y-4">
+            <ul className="space-y-4 px-4">
               {groups.map((g) => (
                 <li key={g.id} className="bg-white rounded-xl p-4 shadow">
                   <div className="flex justify-between items-center mb-3">
