@@ -4,11 +4,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { ArrowLeft } from 'lucide-react';
 import type { User } from './auth-page';
 import { Header } from '../header';
-
 interface GroupsScreenProps {
   user: User;
   onGroupSelected: (group: { id: string; name: string; code: string }) => void;
   onBack: () => void;
+  onSignOut: () => void;
   onGoToActivities?: (group: { id: string; name: string; code: string }) => void;
 }
 
@@ -29,7 +29,7 @@ interface GroupWithUsers {
   }[];
 }
 
-export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }: GroupsScreenProps) {
+export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, onSignOut }: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
   const [joinCode, setJoinCode] = useState('');
@@ -176,6 +176,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
       <Header
         user={user}
         onBack={mode === 'create' || mode === 'join' ? handleBackToList : undefined}
+        onSignOut={onSignOut}
       />
       <h2 className="text-lg font-bold mb-2 px-4">Groups</h2>
       {mode === 'list' && (
