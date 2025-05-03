@@ -6,7 +6,7 @@ import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
 import { getActivities } from '@/lib/activities';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';  
 import { Header } from '../header';
 
 interface HomeScreenProps {

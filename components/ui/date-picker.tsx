@@ -1,7 +1,4 @@
-// DatePickerWithRange.tsx
-
 import * as React from "react";
-import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -16,7 +13,7 @@ import {
 
 interface DatePickerWithRangeProps {
   className?: string;
-  onDateChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
+  onDateChange: (startDate: string | undefined, endDate: string | undefined) => void;
 }
 
 export function DatePickerWithRange({
@@ -30,9 +27,9 @@ export function DatePickerWithRange({
 
   React.useEffect(() => {
     if (date?.from && date?.to) {
-      onDateChange(date.from, date.to); // Update start and end dates when selected
+      onDateChange(date.from.toISOString(), date.to.toISOString());
     } else {
-      onDateChange(undefined, undefined); // Reset if no date selected
+      onDateChange(undefined, undefined);
     }
   }, [date, onDateChange]);
 
@@ -52,10 +49,10 @@ export function DatePickerWithRange({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                  {date.from.toISOString().split("T")[0]} - {date.to.toISOString().split("T")[0]}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                date.from.toISOString().split("T")[0]
               )
             ) : (
               <span className="text-base">Pick a date</span>

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ArrowLeft } from 'lucide-react';
 import type { User } from './auth-page';
 import { Header } from '../header';
+import { DatePickerWithRange } from "@/components/ui/date-picker";
 
 interface GroupsScreenProps {
   user: User;
@@ -17,6 +18,8 @@ interface GroupWithUsers {
   name: string;
   code: string;
   state: 'preferences' | 'activities' | 'final';
+  startDate: string;
+  endDate: string;
   recommendations?: {
     destination: string;
     activities: string[];
@@ -32,15 +35,15 @@ interface GroupWithUsers {
 export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [groups, setGroups] = useState<GroupWithUsers[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
 
-  const handleDateChange = (start: Date | undefined, end: Date | undefined) => {
+  const handleDateChange = (start: string | undefined, end: Date | undefined) => {
     setStartDate(start);
     setEndDate(end);
   };
@@ -58,7 +61,9 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
             name,
             code,
             state,
-            recommendations
+            recommendations,
+            trip_start_date,
+            trip_end_date
           )
         `)
         .eq('user_id', user.id);
@@ -89,6 +94,8 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
               code: g.groups.code,
               state: g.groups.state || 'preferences',
               recommendations: g.groups.recommendations,
+              startDate: g.groups.trip_start_date,
+              endDate: g.groups.trip_end_date,
               users: usersData?.map((u: any) => ({
                 id: u.users.id,
                 firstName: u.users.first_name,
@@ -119,8 +126,9 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
     setError(null);
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const groupId = uuidv4();
+    console.log('dates', startDate, endDate);
     const { error: groupError } = await supabase.from('groups').insert([
-      { id: groupId, name: groupName, code, state: 'preferences' }
+      { id: groupId, name: groupName, code, state: 'preferences', trip_start_date: startDate, trip_end_date: endDate }
     ]);
     if (groupError) {
       setError('Failed to create group');
@@ -129,10 +137,10 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
     }
     // Add user to group
     await supabase.from('user_groups').insert([
-      { user_id: user.id, group_id: groupId, trip_start_date: startDate, trip_end_date: endDate }
+      { user_id: user.id, group_id: groupId }
     ]);
     setCreatedCode(code);
-    setGroups([...groups, { id: groupId, name: groupName, code, state: 'preferences', users: [] }]);
+    setGroups([...groups, { id: groupId, name: groupName, code, state: 'preferences', users: [], trip_start_date: startDate, trip_end_date: endDate }]);
     setIsLoading(false);
     setMode('list');
     onGroupSelected({ id: groupId, name: groupName, code });
@@ -148,7 +156,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
     // Find group by code
     const { data: group, error: groupError } = await supabase
       .from('groups')
-      .select('id, name, code, state')
+      .select('id, name, code, state, trip_start_date, trip_end_date')
       .eq('code', joinCode)
       .single();
     if (groupError || !group) {
@@ -165,7 +173,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
       setIsLoading(false);
       return;
     }
-    setGroups([...groups, { id: group.id, name: group.name, code: group.code, state: group.state || 'preferences', users: [] }]);
+    setGroups([...groups, { id: group.id, name: group.name, code: group.code, startDate: group.trip_start_date, endDate: group.trip_end_date , state: group.state || 'preferences', users: [] }]);
     setIsLoading(false);
     setMode('list');
     onGroupSelected(group);
@@ -211,22 +219,32 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
                     >
                       {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'View Final Plan'}
                     </button>
-                  </div>
-                  <div className="mt-2">
-                    <h4 className="text-sm font-medium text-gray-500 mb-2">Members:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {g.users.map((u) => (
-                        <div key={u.id} className="flex items-center bg-gray-50 rounded-full px-3 py-1">
-                          <div className="w-6 h-6 rounded-full bg-blue-200 flex items-center justify-center text-xs font-medium text-blue-600 mr-2">
-                            {u.firstName[0]}{u.lastName[0]}
-                          </div>
-                          <span className="text-sm">{u.firstName} {u.lastName}</span>
-                        </div>
-                      ))}
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                {/* Flight dates */}
+                <div className="mt-2 flex flex-col items-end">
+                  <p className="text-sm text-gray-700">From: {g.startDate.split("T")[0]}</p>
+                  <p className="text-sm text-gray-700">To: {g.endDate.split("T")[0]}</p>
+                </div>
+    
+              {/* Mostrar miembros */}
+              <div className="mt-2">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Members:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {g.users.map((u) => (
+                    <div key={u.id} className="flex items-center bg-gray-50 rounded-full px-3 py-1">
+                      <div className="w-6 h-6 rounded-full bg-blue-200 flex items-center justify-center text-xs font-medium text-blue-600 mr-2">
+                        {u.firstName[0]}{u.lastName[0]}
+                      </div>
+                      <span className="text-sm">{u.firstName} {u.lastName}</span>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  ))}
+                </div>
+              </div>
+    </div>
+  </li>
+))}
+
               {groups.length === 0 && <li className="text-gray-500">You are not in any groups yet.</li>}
             </ul>
           )}
