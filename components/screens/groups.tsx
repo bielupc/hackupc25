@@ -141,11 +141,16 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
     onGroupSelected(group);
   };
 
+  // Handler for going back to the main list
+  const handleBackToList = () => setMode('list');
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white p-4">
-      <div className="flex items-center mb-4">
-        <h2 className="ml-4 text-xl font-bold">Groups</h2>
-      </div>
+      <Header
+        user={user}
+        onBack={mode === 'create' || mode === 'join' ? handleBackToList : undefined}
+      />
+      <h2 className="text-lg font-bold mb-2">Groups</h2>
       {mode === 'list' && (
         <>
           <div className="mb-6">
@@ -203,7 +208,6 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
           </button>
           {createdCode && <div className="text-green-600">Group created! Share this code: <b>{createdCode}</b></div>}
           {error && <div className="text-red-500">{error}</div>}
-          <button onClick={() => setMode('list')} className="text-blue-600 underline">Back to groups</button>
         </div>
       )}
       {mode === 'join' && (
@@ -219,7 +223,6 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
             {isLoading ? 'Joining...' : 'Join'}
           </button>
           {error && <div className="text-red-500">{error}</div>}
-          <button onClick={() => setMode('list')} className="text-blue-600 underline">Back to groups</button>
         </div>
       )}
     </div>
