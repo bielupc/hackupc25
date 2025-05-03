@@ -10,7 +10,7 @@ interface SongSelectorProps {
 
 export function SongSelector({ onBack, onSelect, selectedSongs}: SongSelectorProps) {
   return (
-     <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white">
+     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white">
       {/* Header */}
       <div className="p-4 flex items-center bg-white/80 backdrop-blur-sm shadow-sm">
         <button

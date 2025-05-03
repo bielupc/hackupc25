@@ -100,7 +100,7 @@ export function HomeScreen({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-4">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-4">
 
       {/* Header */}
       <div className="p-4 flex items-center justify-between bg-white backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">

@@ -314,7 +314,7 @@ export function WelcomeScreen({ onNext }: WelcomeScreenProps) {
   ];
 
   return (
-    <div className="relative flex flex-col justify-center items-center h-full bg-white text-white overflow-hidden pt-[7rem]">
+    <div className="relative flex flex-col justify-center items-center h-full bg-gradient-to-b from-blue-100 via-white to-white text-black overflow-hidden pt-[7rem]">
         <motion.div
           className="text-5xl text-center font-bold z-10 top-20 text-black"
           initial={{ opacity: 0, y: 20 }}

@@ -162,7 +162,7 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-hidden mt-5">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-hidden pt-5">
       {/* Hero Image Card */}
       <div className="flex justify-center items-center px-4 pt-4">
         <div className="w-full rounded-2xl shadow-lg overflow-hidden bg-white" style={{ maxWidth: 480 }}>

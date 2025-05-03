@@ -30,7 +30,7 @@ export function SignUpScreen({ onDone, onBack, error }: SignUpScreenProps) {
   };
 
   return (
-    <div className="relative items-center flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 px-4 h-full">
+    <div className="relative items-center flex flex-col justify-center bg-gradient-to-b from-blue-100 via-white to-white px-4 h-full">
       {/* Back Button at the very top */}
       <button
         className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-900"
