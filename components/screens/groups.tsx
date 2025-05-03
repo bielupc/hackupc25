@@ -8,12 +8,20 @@ import { Header } from '../header';
 interface GroupsScreenProps {
   user: User;
   onGroupSelected: (group: { id: string; name: string; code: string }) => void;
+  onBack: () => void;
+  onGoToActivities?: (group: { id: string; name: string; code: string }) => void;
 }
 
 interface GroupWithUsers {
   id: string;
   name: string;
   code: string;
+  state: 'preferences' | 'activities' | 'final';
+  recommendations?: {
+    destination: string;
+    activities: string[];
+    explanation: string;
+  };
   users: {
     id: string;
     firstName: string;
@@ -21,7 +29,7 @@ interface GroupWithUsers {
   }[];
 }
 
-export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
+export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
   const [joinCode, setJoinCode] = useState('');
@@ -34,22 +42,28 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
     // Fetch groups the user is in
     const fetchGroups = async () => {
       setIsLoading(true);
+      console.log('Fetching groups for user:', user.id);
       const { data, error } = await supabase
         .from('user_groups')
         .select(`
           group_id,
           groups (
             name,
-            code
+            code,
+            state,
+            recommendations
           )
         `)
         .eq('user_id', user.id);
+      
+      console.log('Groups query result:', { data, error });
       
       if (!error && data) {
         // For each group, fetch all its users
         const groupsWithUsers = await Promise.all(
           data.map(async (g: any) => {
-            const { data: usersData } = await supabase
+            console.log('Fetching users for group:', g.group_id);
+            const { data: usersData, error: usersError } = await supabase
               .from('user_groups')
               .select(`
                 users (
@@ -59,11 +73,15 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
                 )
               `)
               .eq('group_id', g.group_id);
+            
+            console.log('Users query result:', { usersData, usersError });
 
             return {
               id: g.group_id,
               name: g.groups.name,
               code: g.groups.code,
+              state: g.groups.state || 'preferences',
+              recommendations: g.groups.recommendations,
               users: usersData?.map((u: any) => ({
                 id: u.users.id,
                 firstName: u.users.first_name,
@@ -73,6 +91,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
           })
         );
         
+        console.log('Final groups with users:', groupsWithUsers);
         setGroups(groupsWithUsers);
       }
       setIsLoading(false);
@@ -90,7 +109,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const groupId = uuidv4();
     const { error: groupError } = await supabase.from('groups').insert([
-      { id: groupId, name: groupName, code }
+      { id: groupId, name: groupName, code, state: 'preferences' }
     ]);
     if (groupError) {
       setError('Failed to create group');
@@ -102,7 +121,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
       { user_id: user.id, group_id: groupId }
     ]);
     setCreatedCode(code);
-    setGroups([...groups, { id: groupId, name: groupName, code, users: [] }]);
+    setGroups([...groups, { id: groupId, name: groupName, code, state: 'preferences', users: [] }]);
     setIsLoading(false);
     setMode('list');
     onGroupSelected({ id: groupId, name: groupName, code });
@@ -118,7 +137,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
     // Find group by code
     const { data: group, error: groupError } = await supabase
       .from('groups')
-      .select('id, name, code')
+      .select('id, name, code, state')
       .eq('code', joinCode)
       .single();
     if (groupError || !group) {
@@ -135,7 +154,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
       setIsLoading(false);
       return;
     }
-    setGroups([...groups, { id: group.id, name: group.name, code: group.code, users: [] }]);
+    setGroups([...groups, { id: group.id, name: group.name, code: group.code, state: group.state || 'preferences', users: [] }]);
     setIsLoading(false);
     setMode('list');
     onGroupSelected(group);
@@ -143,6 +162,14 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
 
   // Handler for going back to the main list
   const handleBackToList = () => setMode('list');
+
+  const handleGroupClick = (group: GroupWithUsers) => {
+    if (group.state === 'activities') {
+      onGoToActivities?.(group);
+    } else {
+      onGroupSelected(group);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white py-4">
@@ -159,7 +186,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
           </div>
           <h3 className="text-lg font-semibold mb-2 px-4">Your Groups</h3>
           {isLoading ? <div>Loading...</div> : (
-            <ul className="space-y-4 px-4">
+            <ul className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {groups.map((g) => (
                 <li key={g.id} className="bg-white rounded-xl p-4 shadow">
                   <div className="flex justify-between items-center mb-3">
@@ -169,9 +196,9 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
                     </div>
                     <button
                       className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition-colors"
-                      onClick={() => onGroupSelected(g)}
+                      onClick={() => handleGroupClick(g)}
                     >
-                      Go to Home
+                      {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'View Final Plan'}
                     </button>
                   </div>
                   <div className="mt-2">

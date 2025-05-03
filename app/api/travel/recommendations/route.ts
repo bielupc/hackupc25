@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     console.log("Image Analysis:", imageAnalysis);
     console.log("Combined Analysis:", combinedAnalysis);
     // Second prompt using the image analysis results
-    const finalPrompt = `Based on the following analysis of inspiration images and additional preferences, recommend a travel destination and activities.
+    const finalPrompt = `Based on the following analysis of inspiration images and additional preferences from all group members, recommend a travel destination and activities that would appeal to everyone.
 
     Image Analysis:
     - Places identified: ${combinedAnalysis.places.join(", ")}
@@ -102,13 +102,13 @@ export async function POST(request: Request) {
     - Clothing styles: ${combinedAnalysis.clothing.join(", ")}
     
     Additional Preferences:
-    - Color palette mood: ${palette}
-    - Music mood: ${albumMood}
+    - Color palette moods: ${palette}
+    - Music moods: ${albumMood}
 
     Please provide:
-    1. A recommended travel destination that matches these vibes
-    2. 6 specific activities or experiences that would be perfect for this destination
-    3. A brief explanation of why this destination matches the provided mood and inspiration
+    1. A recommended travel destination that matches these vibes and would appeal to everyone in the group
+    2. 6 specific activities or experiences that would be perfect for this destination and cater to different preferences
+    3. A brief explanation of why this destination matches the provided moods and inspiration, and how it accommodates different preferences
 
     Format the response as JSON with the following structure:
     {

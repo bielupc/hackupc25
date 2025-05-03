@@ -89,34 +89,107 @@ export function HomeScreen({
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
 
-  const handleGenerateIdeas = async () => {
+  const handleSubmitPreferences = async () => {
     try {
       setIsLoading(true);
       
-      const response = await fetch('/api/travel/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          images: selectedImages,
-          palette: selectedPalette,
-          songs: selectedSongs.map(song => song.title),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate recommendations');
+      // Check if both images and songs are selected
+      if (!selectedImages.length || !selectedSongs.length) {
+        console.error('Both images and songs must be selected');
+        return;
       }
 
-      const data = await response.json();
-      localStorage.setItem('lastTravelRecommendation', JSON.stringify(data));
+      // Save preferences
+      if (!user?.id || !group?.id) return;
+      await supabase.from('group_preferences').upsert({
+        user_id: user.id,
+        group_id: group.id,
+        palette: selectedPalette,
+        selected_images: selectedImages,
+        selected_songs: selectedSongs,
+        selected_album: selectedAlbum,
+      });
 
-      // After successful API call, proceed to next screen
+      // Check if all members have submitted preferences
+      const { data: groupMembers, error: membersError } = await supabase
+        .from('user_groups')
+        .select('user_id')
+        .eq('group_id', group.id);
+      
+      const { data: submittedPreferences, error: preferencesError } = await supabase
+        .from('group_preferences')
+        .select('user_id, selected_images, selected_songs, palette')
+        .eq('group_id', group.id);
+
+      if (membersError || preferencesError) {
+        console.error('Error checking group members or preferences:', membersError || preferencesError);
+        return;
+      }
+
+      // Check if all members have submitted complete preferences
+      const allMembersSubmitted = groupMembers && submittedPreferences && 
+        groupMembers.length === submittedPreferences.length &&
+        groupMembers.every(member => {
+          const memberPreferences = submittedPreferences.find(pref => pref.user_id === member.user_id);
+          return memberPreferences && 
+                 memberPreferences.selected_images && 
+                 memberPreferences.selected_images.length > 0 &&
+                 memberPreferences.selected_songs && 
+                 memberPreferences.selected_songs.length > 0;
+        });
+
+      if (allMembersSubmitted) {
+        // All members have submitted complete preferences, generate activities
+        try {
+          // Combine all preferences
+          const allImages = submittedPreferences.flatMap(pref => pref.selected_images || []);
+          const allSongs = submittedPreferences.flatMap(pref => pref.selected_songs || []);
+          const allPalettes = submittedPreferences.map(pref => pref.palette);
+
+          // Get unique values
+          const uniqueImages = [...new Set(allImages)];
+          const uniquePalettes = [...new Set(allPalettes)];
+
+          // Generate recommendations
+          const response = await fetch('/api/travel/recommendations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              images: uniqueImages,
+              palette: uniquePalettes.join(', '),
+              albumMood: allSongs.map(song => song.title).join(', ')
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to generate recommendations');
+          }
+
+          const recommendations = await response.json();
+          
+          // Save recommendations to the group
+          const { error: updateError } = await supabase
+            .from('groups')
+            .update({ 
+              state: 'activities',
+              recommendations: recommendations
+            })
+            .eq('id', group.id);
+
+          if (updateError) {
+            console.error('Error updating group state:', updateError);
+          }
+        } catch (error) {
+          console.error('Error generating recommendations:', error);
+        }
+      }
+
+      // Always redirect to groups screen after submission
       onNext();
     } catch (error) {
-      console.error('Error generating travel ideas:', error);
-      // You might want to show an error message to the user here
+      console.error('Error submitting preferences:', error);
     } finally {
       setIsLoading(false);
     }
@@ -255,16 +328,16 @@ export function HomeScreen({
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700'
           } text-white`}
-          onClick={handleGenerateIdeas}
+          onClick={handleSubmitPreferences}
           disabled={isLoading || selectedImages.length === 0 || selectedSongs.length === 0}
         >
           {isLoading 
-            ? 'Generating Ideas...' 
+            ? 'Submitting...' 
             : selectedImages.length === 0 
               ? 'Add at least one image'
               : selectedSongs.length === 0
                 ? 'Add at least one song'
-                : 'Generate Travel Ideas'
+                : 'Submit Preferences'
           }
         </button>
       </div>
