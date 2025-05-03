@@ -32,7 +32,7 @@ export function SignInScreen({ onNext, onSignUp, onBack, error }: SignInScreenPr
   };
 
   return (
-    <div className="relative items-center flex flex-col justify-center bg-gradient-to-b from-blue-100 via-white to-white px-4 h-full">
+    <div className="relative items-center flex flex-col justify-center bg-white px-4 h-full">
       {/* Back Button at the very top */}
       <button
         className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-900"

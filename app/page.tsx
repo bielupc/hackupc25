@@ -145,7 +145,6 @@ export default function Home() {
           <GroupsScreen
             user={user}
             onGroupSelected={handleGroupSelected}
-            onBack={() => setCurrentScreen('sign-in')}
           />
         ) : null;
       case 'home':
@@ -154,6 +153,7 @@ export default function Home() {
             user={user}
             group={group}
             onNext={() => setCurrentScreen('travel')}
+            onBack={() => setCurrentScreen('groups')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
             setSelectedPalette={setSelectedPalette}
@@ -169,8 +169,9 @@ export default function Home() {
       case 'travel':
         return (
           <TravelScreen
+            user={user}
             onNext={() => setCurrentScreen('home')}
-            onBack={handleBack}
+            onBack={() => setCurrentScreen('groups')}
           />
         );
       case 'palette-selector':

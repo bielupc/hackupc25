@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, MapPin, Heart, X } from 'lucide-react';
+import { Header } from '../header';
+import type { User } from './auth-page';
 
 interface TravelScreenProps {
   onNext: () => void;
   onBack?: () => void;
+  user?: User | null;
 }
 
 interface TravelRecommendation {
@@ -30,7 +33,7 @@ interface PexelsMedia {
   }>;
 }
 
-export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
+export function TravelScreen({ onNext, onBack, user }: TravelScreenProps) {
   const [recommendation, setRecommendation] = useState<TravelRecommendation | null>(null);
   const [loading, setLoading] = useState(true);
   const [destinationImage, setDestinationImage] = useState<string>('');
@@ -163,6 +166,7 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-hidden pt-5">
+      <Header user={user} onBack={onBack} />
       {/* Hero Image Card */}
       <div className="flex justify-center items-center px-4 pt-4 mb-4">
         <div className="w-full rounded-2xl shadow-lg overflow-hidden bg-white" style={{ maxWidth: 480 }}>

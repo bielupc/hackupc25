@@ -3,11 +3,11 @@ import { supabase } from '../../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 import { ArrowLeft } from 'lucide-react';
 import type { User } from './auth-page';
+import { Header } from '../header';
 
 interface GroupsScreenProps {
   user: User;
   onGroupSelected: (group: { id: string; name: string; code: string }) => void;
-  onBack: () => void;
 }
 
 interface GroupWithUsers {
@@ -21,7 +21,7 @@ interface GroupWithUsers {
   }[];
 }
 
-export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProps) {
+export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
   const [joinCode, setJoinCode] = useState('');
@@ -144,10 +144,6 @@ export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProp
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white p-4">
       <div className="flex items-center mb-4">
-        <button onClick={onBack} className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back
-        </button>
         <h2 className="ml-4 text-xl font-bold">Groups</h2>
       </div>
       {mode === 'list' && (
