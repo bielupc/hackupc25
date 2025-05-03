@@ -4,6 +4,8 @@ import { useState } from "react";
 import { MobileMockup } from "@/components/mobile-mockup";
 import { SignInScreen } from "@/components/screens/sign-in";
 import { HomeScreen } from "@/components/screens/home";
+import { getEvents } from "@/lib/events";
+import { getFlights } from "@/lib/flights";
 
 const screens = [
   SignInScreen,
@@ -24,7 +26,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-12 bg-gray-100">
       <MobileMockup>
-        <ScreenComponent onNext={handleNext} />
+        <ScreenComponent onNext={getFlights} />
       </MobileMockup>
     </main>
   );
