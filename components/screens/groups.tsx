@@ -10,7 +10,9 @@ interface GroupsScreenProps {
   user: User;
   onGroupSelected: (group: { id: string; name: string; code: string }) => void;
   onBack: () => void;
+  onSignOut: () => void;
   onGoToActivities?: (group: { id: string; name: string; code: string }) => void;
+  onGoToTripOverview?: (group: { id: string; name: string; code: string }) => void;
 }
 
 interface GroupWithUsers {
@@ -32,7 +34,7 @@ interface GroupWithUsers {
   }[];
 }
 
-export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }: GroupsScreenProps) {
+export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, onGoToTripOverview, onSignOut }: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
   const [startDate, setStartDate] = useState<string | undefined>(undefined);
@@ -52,7 +54,6 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
     // Fetch groups the user is in
     const fetchGroups = async () => {
       setIsLoading(true);
-      console.log('Fetching groups for user:', user.id);
       const { data, error } = await supabase
         .from('user_groups')
         .select(`
@@ -68,13 +69,10 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
         `)
         .eq('user_id', user.id);
       
-      console.log('Groups query result:', { data, error });
-      
       if (!error && data) {
         // For each group, fetch all its users
         const groupsWithUsers = await Promise.all(
           data.map(async (g: any) => {
-            console.log('Fetching users for group:', g.group_id);
             const { data: usersData, error: usersError } = await supabase
               .from('user_groups')
               .select(`
@@ -86,8 +84,6 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
               `)
               .eq('group_id', g.group_id);
             
-            console.log('Users query result:', { usersData, usersError });
-
             return {
               id: g.group_id,
               name: g.groups.name,
@@ -105,7 +101,6 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
           })
         );
         
-        console.log('Final groups with users:', groupsWithUsers);
         setGroups(groupsWithUsers);
       }
       setIsLoading(false);
@@ -185,6 +180,8 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
   const handleGroupClick = (group: GroupWithUsers) => {
     if (group.state === 'activities') {
       onGoToActivities?.(group);
+    } else if (group.state === 'final') {
+      onGoToTripOverview?.(group);
     } else {
       onGroupSelected(group);
     }
@@ -195,6 +192,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
       <Header
         user={user}
         onBack={mode === 'create' || mode === 'join' ? handleBackToList : undefined}
+        onSignOut={onSignOut}
       />
       <h2 className="text-lg font-bold mb-2 px-4">Groups</h2>
       {mode === 'list' && (
@@ -217,7 +215,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities }
                       className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition-colors"
                       onClick={() => handleGroupClick(g)}
                     >
-                      {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'View Final Plan'}
+                      {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'Go to Travel'}
                     </button>
                 </div>
                 <div className="flex justify-between items-center mt-2">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { ChevronRight, ChevronLeft, Bookmark, MapPin, Heart, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Header } from '../header';
@@ -7,6 +8,7 @@ import type { User } from './auth-page';
 interface TravelScreenProps {
   onNext: () => void;
   onBack?: () => void;
+  onSignOut: () => void;
   user: User | null;
   group: { id: string; name: string; code: string } | null;
 }
@@ -41,7 +43,7 @@ interface PexelsMedia {
   }>;
 }
 
-export function TravelScreen({ onNext, onBack, user, group }: TravelScreenProps) {
+export function TravelScreen({ onNext, onBack, user, group, onSignOut }: TravelScreenProps) {
   const [recommendation, setRecommendation] = useState<TravelRecommendation | null>(null);
   const [loading, setLoading] = useState(true);
   const [destinationImage, setDestinationImage] = useState<string>('');
@@ -55,26 +57,36 @@ export function TravelScreen({ onNext, onBack, user, group }: TravelScreenProps)
     const fetchRecommendations = async () => {
       if (!group?.id) return;
       
-      // Fetch the group with its recommendations
-      const { data: groupData, error: groupError } = await supabase
-        .from('groups')
-        .select('recommendations')
-        .eq('id', group.id)
-        .single();
+      try {
+        // Fetch the group with its recommendations
+        const { data: groupData, error: groupError } = await supabase
+          .from('groups')
+          .select('recommendations')
+          .eq('id', group.id)
+          .single();
 
-      if (groupError || !groupData?.recommendations) {
-        console.error('Error fetching group recommendations:', groupError);
-        return;
+        if (groupError || !groupData?.recommendations) {
+          console.error('Error fetching group recommendations:', groupError);
+          setLoading(false);
+          return;
+        }
+
+        // Set the recommendations from the group record
+        setRecommendation(groupData.recommendations);
+        
+        // Fetch all required data
+        await Promise.all([
+          fetchDestinationImage(groupData.recommendations.destination),
+          fetchActivityVideos(groupData.recommendations.activities)
+        ]);
+      } catch (error) {
+        console.error('Error in fetchRecommendations:', error);
+      } finally {
+        setLoading(false);
       }
-
-      // Set the recommendations from the group record
-      setRecommendation(groupData.recommendations);
-      fetchDestinationImage(groupData.recommendations.destination);
-      fetchActivityVideos(groupData.recommendations.activities);
     };
 
     fetchRecommendations();
-    setLoading(false);
   }, [group?.id]);
 
   const fetchDestinationImage = async (destination: string) => {
@@ -105,88 +117,82 @@ export function TravelScreen({ onNext, onBack, user, group }: TravelScreenProps)
     setActivityVideos(videos);
   };
 
-  const handleActivityLike = async (activity: string) => {
+  const handleActivityLike = (activity: string) => {
     setLikedActivities(prev => [...prev, activity]);
     if (selectedVideo) setLastSelected(selectedVideo);
     setActivityFeedback(prev => ({ ...prev, [activity]: 'like' }));
     setSelectedVideo(null);
-
-    // Save activity preference
-    if (user?.id && group?.id) {
-      await supabase.from('group_activities').upsert({
-        user_id: user.id,
-        group_id: group.id,
-        liked_activities: [...likedActivities, activity],
-        disliked_activities: Object.entries(activityFeedback)
-          .filter(([_, feedback]) => feedback === 'dislike')
-          .map(([activity]) => activity)
-      });
-
-      // Check if all members have submitted activity preferences
-      const { data: groupMembers } = await supabase
-        .from('user_groups')
-        .select('user_id')
-        .eq('group_id', group.id);
-
-      const { data: submittedActivities } = await supabase
-        .from('group_activities')
-        .select('user_id')
-        .eq('group_id', group.id);
-
-      if (groupMembers && submittedActivities && 
-          groupMembers.length === submittedActivities.length) {
-        // All members have submitted, update group state
-        await supabase
-          .from('groups')
-          .update({ state: 'final' })
-          .eq('id', group.id);
-      }
-    }
+    // No upsert here
   };
 
-  const handleActivityDislike = async () => {
+  const handleActivityDislike = () => {
     if (selectedVideo) {
       setLastSelected(selectedVideo);
       setActivityFeedback(prev => ({ ...prev, [selectedVideo.activity]: 'dislike' }));
       setSelectedVideo(null);
+      // No upsert here
+    }
+  };
 
-      // Save activity preference
-      if (user?.id && group?.id) {
-        await supabase.from('group_activities').upsert({
-          user_id: user.id,
-          group_id: group.id,
-          liked_activities: likedActivities,
-          disliked_activities: [...Object.entries(activityFeedback)
+  const handleSubmitPreferences = async () => {
+    if (!user?.id || !group?.id) return;
+    await supabase.from('group_activities').upsert([
+      {
+        user_id: user.id,
+        group_id: group.id,
+        liked_activities: JSON.stringify(likedActivities),
+        disliked_activities: JSON.stringify(
+          Object.entries(activityFeedback)
             .filter(([_, feedback]) => feedback === 'dislike')
-            .map(([activity]) => activity), selectedVideo.activity]
-        });
+            .map(([activity]) => activity)
+        ),
+      }
+    ]);
 
-        // Check if all members have submitted activity preferences
-        const { data: groupMembers } = await supabase
-          .from('user_groups')
-          .select('user_id')
-          .eq('group_id', group.id);
+    // Check if all members have submitted activity preferences
+    const { data: groupMembers, error: membersError } = await supabase
+      .from('user_groups')
+      .select('user_id')
+      .eq('group_id', group.id);
 
-        const { data: submittedActivities } = await supabase
-          .from('group_activities')
-          .select('user_id')
-          .eq('group_id', group.id);
+    const { data: submittedActivities, error: activitiesError } = await supabase
+      .from('group_activities')
+      .select('user_id, liked_activities, disliked_activities')
+      .eq('group_id', group.id);
 
-        if (groupMembers && submittedActivities && 
-            groupMembers.length === submittedActivities.length) {
-          // All members have submitted, update group state
-          await supabase
-            .from('groups')
-            .update({ state: 'final' })
-            .eq('id', group.id);
-        }
+    if (membersError || activitiesError) {
+      console.error('Error checking group members or activities:', membersError || activitiesError);
+      onNext();
+      return;
+    }
+
+    // Check if all members have submitted complete activity preferences
+    const allMembersSubmitted = groupMembers && submittedActivities &&
+      groupMembers.length === submittedActivities.length &&
+      groupMembers.every(member => {
+        const memberActivities = submittedActivities.find(act => act.user_id === member.user_id);
+        return memberActivities &&
+               memberActivities.liked_activities &&
+               JSON.parse(memberActivities.liked_activities).length > 0;
+      });
+
+    if (allMembersSubmitted) {
+      // All members have submitted, update group state to 'final'
+      const { error: updateError } = await supabase
+        .from('groups')
+        .update({ state: 'final' })
+        .eq('id', group.id);
+      if (updateError) {
+        console.error('Error updating group state:', updateError);
       }
     }
+
+    onNext();
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 items-center justify-center">
+      <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         <p className="mt-4 text-gray-600">Loading recommendations...</p>
       </div>
@@ -195,7 +201,7 @@ export function TravelScreen({ onNext, onBack, user, group }: TravelScreenProps)
 
   if (!recommendation) {
     return (
-      <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 items-center justify-center p-6">
+      <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 items-center justify-center p-6">
         <p className="text-gray-600 text-center">No recommendations available. Please try generating new ideas.</p>
         <button
           onClick={onBack}
@@ -255,7 +261,7 @@ export function TravelScreen({ onNext, onBack, user, group }: TravelScreenProps)
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-hidden pt-5">
-      <Header user={user} onBack={onBack} />
+      <Header user={user} onBack={onBack} onSignOut={onSignOut} />
       {/* Hero Image Card */}
       <div className="flex justify-center items-center px-4 pt-4 mb-4">
         <div className="w-full rounded-2xl shadow-lg overflow-hidden bg-white" style={{ maxWidth: 480 }}>
@@ -320,10 +326,10 @@ export function TravelScreen({ onNext, onBack, user, group }: TravelScreenProps)
       {/* Next Button */}
       <div className="p-4 w-full">
         <button
-          onClick={onNext}
+          onClick={handleSubmitPreferences}
           className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors"
         >
-          Continue Planning
+          Submit preferences
         </button>
       </div>
     </div>

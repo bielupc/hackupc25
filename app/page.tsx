@@ -94,6 +94,12 @@ export default function Home() {
     }
   };
 
+  const handleSignOut = () => {
+    setUser(null);
+    setGroup(null);
+    setCurrentScreen('welcome');
+  };
+
   const handleLoginSuccess = (user: User) => {
     setUser(user);
     setCurrentScreen('groups');
@@ -126,6 +132,11 @@ export default function Home() {
     setCurrentScreen('travel');
   };
 
+  const handleGoToTripOverview = (group: { id: string; name: string; code: string }) => {
+    setGroup(group);
+    setCurrentScreen('trip-overview');
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'welcome':
@@ -142,7 +153,9 @@ export default function Home() {
             user={user}
             onGroupSelected={handleGroupSelected}
             onGoToActivities={handleGoToActivities}
+            onGoToTripOverview={handleGoToTripOverview}
             onBack={() => setCurrentScreen('sign-in')}
+            onSignOut={handleSignOut}
           />
         ) : null;
       case 'home':
@@ -151,6 +164,7 @@ export default function Home() {
             user={user}
             group={group}
             onBack={handleBack}
+            onSignOut={handleSignOut}
             onNext={() => setCurrentScreen('groups')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
@@ -165,8 +179,9 @@ export default function Home() {
       case 'travel':
         return (
           <TravelScreen
-            onNext={() => setCurrentScreen('home')}
+            onNext={() => setCurrentScreen('groups')}
             onBack={handleBack}
+            onSignOut={handleSignOut}
             user={user}
             group={group}
           />
@@ -190,6 +205,10 @@ export default function Home() {
       case 'trip-overview':
         return (
           <TripOverview
+            group={group}
+            user={user}
+            onSignOut={handleSignOut}
+            onBack={() => setCurrentScreen('groups')}
           />
         );
       default:
