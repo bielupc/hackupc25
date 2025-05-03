@@ -4,10 +4,12 @@ import { useState } from "react";
 import { MobileMockup } from "@/components/mobile-mockup";
 import { SignInScreen } from "@/components/screens/sign-in";
 import { HomeScreen } from "@/components/screens/home";
+import { TravelScreen } from "@/components/screens/travel";
 
 const screens = [
   SignInScreen,
   HomeScreen,
+  TravelScreen,
   // Add more screens here as needed
 ];
 
