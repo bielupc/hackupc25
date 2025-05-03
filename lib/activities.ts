@@ -39,7 +39,7 @@ export async function getActivities(data: object) {
       sort: 'start'
     });
 
-    console.log('Activities:', activities);
+    //console.log('Activities:', activities);
     //logEventsToConsole(activities);
 
     return activities.result.results;
