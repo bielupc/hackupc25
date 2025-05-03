@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
     Please provide:
     1. A recommended travel destination that matches these vibes
-    2. 3-5 specific activities or experiences that would be perfect for this destination
+    2. 6 specific activities or experiences that would be perfect for this destination
     3. A brief explanation of why this destination matches the provided mood and inspiration
 
     Format the response as JSON with the following structure:
