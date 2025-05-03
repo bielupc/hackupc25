@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, ArrowLeft } from 'lucide-react';
 
 // Dummy Logo component
 const Logo = () => (
@@ -16,10 +16,11 @@ const Logo = () => (
 interface SignInScreenProps {
   onNext: (email: string, password: string) => Promise<boolean>;
   onSignUp: () => void;
+  onBack: () => void;
   error?: string | null;
 }
 
-export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
+export function SignInScreen({ onNext, onSignUp, onBack, error }: SignInScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +35,16 @@ export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
   };
 
   return (
-    <div className="items-center flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 px-4 h-full">
+    <div className="relative items-center flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 px-4 h-full">
+      {/* Back Button at the very top */}
+      <button
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-900"
+        onClick={onBack}
+        type="button"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" />
+        Back
+      </button>
       <div className="w-full flex flex-col max-w-md justify-center flex-1">
         <div className="flex flex-col items-center mb-8">
           <Logo />

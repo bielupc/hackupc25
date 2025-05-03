@@ -12,9 +12,10 @@ export interface User {
 
 interface AuthPageProps {
   onLoginSuccess: (user: User) => void;
+  onBack: () => void;
 }
 
-export function AuthPage({ onLoginSuccess }: AuthPageProps) {
+export function AuthPage({ onLoginSuccess, onBack }: AuthPageProps) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [error, setError] = useState<string | null>(null);
 
@@ -70,11 +71,13 @@ export function AuthPage({ onLoginSuccess }: AuthPageProps) {
     <SignInScreen
       onNext={handleSignIn}
       onSignUp={() => { setMode('sign-up'); setError(null); }}
+      onBack={onBack}
       error={error}
     />
   ) : (
     <SignUpScreen
       onDone={handleSignUp}
+      onBack={() => setMode('sign-in')}
       error={error}
     />
   );

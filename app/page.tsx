@@ -9,7 +9,13 @@ import { WelcomeScreen } from "@/components/screens/welcome";
 import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
 
-
+const screens = [
+  WelcomeScreen, 
+  AuthPage,
+  HomeScreen,
+  TravelScreen,
+  // Add more screens here as needed
+];
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
@@ -71,7 +77,7 @@ export default function Home() {
           />
         );
       case 'sign-in':
-        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} />;
+        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} onBack={() => setCurrentScreen('welcome')} />;
       case 'home':
         return (
           <HomeScreen
