@@ -33,7 +33,6 @@ export function PaletteSelector({ onBack, onSelect, selectedPalette }: PaletteSe
         >
           <ChevronLeft size={24} />
         </button>
-        <h1 className="text-xl font-semibold ml-4">Select Color Palette</h1>
       </div>
 
       {/* Palette Grid */}
@@ -43,13 +42,13 @@ export function PaletteSelector({ onBack, onSelect, selectedPalette }: PaletteSe
             <button
               key={palette.name}
               onClick={() => onSelect(palette.name)}
-              className={`relative aspect-square rounded-3xl overflow-hidden group transition-all duration-200 ${
+              className={`relative aspect-[3/1] rounded-3xl overflow-hidden group transition-all duration-200 ${
                 selectedPalette === palette.name
                   ? 'ring-4 ring-blue-500 shadow-lg'
                   : 'hover:shadow-md'
               }`}
             >
-              <div className="absolute inset-0 flex flex-col">
+              <div className="w-full h-full flex">
                 {palette.colors.map((color, i) => (
                   <div
                     key={i}
@@ -58,12 +57,8 @@ export function PaletteSelector({ onBack, onSelect, selectedPalette }: PaletteSe
                   />
                 ))}
               </div>
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                <p className="text-white font-medium">{palette.name}</p>
-              </div>
               {selectedPalette === palette.name && (
-                <div className="absolute top-4 right-4 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg">
                   <Check size={20} />
                 </div>
               )}

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X } from 'lucide-react';
+import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 
 interface HomeScreenProps {
   onNext: () => void;
@@ -16,9 +16,41 @@ const colorPalettes = [
   { name: 'Desert', colors: ['#E9C46A', '#F4A261', '#E76F51'] },
 ];
 
+const curatedAlbums = [
+  {
+    id: '1',
+    name: 'Summer Vibes',
+    artist: 'Various Artists',
+    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80',
+    mood: 'Energetic & Sunny'
+  },
+  {
+    id: '2',
+    name: 'Chill Beats',
+    artist: 'Lo-fi Collective',
+    image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=300&q=80',
+    mood: 'Relaxed & Cozy'
+  },
+  {
+    id: '3',
+    name: 'City Nights',
+    artist: 'Urban Sounds',
+    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=300&q=80',
+    mood: 'Urban & Modern'
+  },
+  {
+    id: '4',
+    name: 'Nature Sounds',
+    artist: 'Ambient Collective',
+    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=300&q=80',
+    mood: 'Peaceful & Natural'
+  }
+];
+
 export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset' }: HomeScreenProps) {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [spotifyUrl, setSpotifyUrl] = useState<string>('');
+  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
+  const [showAlbumSelector, setShowAlbumSelector] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -33,6 +65,7 @@ export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset'
   };
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
+  const selectedAlbumData = curatedAlbums.find(album => album.id === selectedAlbum);
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto">
@@ -60,12 +93,21 @@ export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset'
 
       {/* Main Content */}
       <div className="flex-grow px-6 space-y-8 pb-6">
-        {/* Image Upload Section */}
+        {/* Mood Board Section */}
         <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center">
+              <Sparkles className="mr-2 text-blue-500" size={20} />
+              Your Mood Board
+            </h2>
+            <span className="text-sm text-gray-500">{selectedImages.length}/6 images</span>
+          </div>
+          
+          <div className="space-y-4">
             {selectedImages.map((image, index) => (
-              <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group">
+              <div key={index} className="relative w-full aspect-square rounded-2xl overflow-hidden group">
                 <img src={image} alt={`Uploaded ${index + 1}`} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <button
                   onClick={() => removeImage(index)}
                   className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/70"
@@ -75,16 +117,19 @@ export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset'
               </div>
             ))}
             {selectedImages.length < 6 && (
-              <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all duration-200 hover:bg-blue-50/50 group">
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                <Camera size={28} className="text-gray-400 group-hover:text-blue-500 mb-2" />
-              </label>
+              <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all duration-200 hover:bg-blue-50/50 group">
+                <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                  <Camera size={28} className="text-gray-400 group-hover:text-blue-500 mb-2" />
+                  <span className="text-sm text-gray-500 group-hover:text-blue-500">Add inspiration</span>
+                </label>
+              </div>
             )}
           </div>
         </div>
@@ -92,46 +137,58 @@ export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset'
         {/* Color Palette Preview */}
         <button 
           onClick={() => onPaletteSelect?.()}
-          className="w-full bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:bg-white/70 transition-all duration-200"
+          className="relative w-full aspect-[3/1] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex -space-x-2">
-                {currentPalette.colors.map((color, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-              <span className="font-medium text-gray-700">{currentPalette.name}</span>
-            </div>
-            <ChevronDown size={20} className="text-gray-400" />
+          <div className="w-full h-full flex">
+            {currentPalette.colors.map((color, i) => (
+              <div
+                key={i}
+                className="flex-1"
+                style={{ backgroundColor: color }}
+              />
+            ))}
           </div>
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200" />
         </button>
 
-        {/* Spotify Playlist Section */}
+        {/* Album Selection */}
         <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2">
-              <Music size={20} className="text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Add your Spotify playlist"
-              value={spotifyUrl}
-              onChange={(e) => setSpotifyUrl(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50"
-            />
-            {spotifyUrl && (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center">
+              <Music className="mr-2 text-blue-500" size={20} />
+              Select Mood Music
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {curatedAlbums.map((album) => (
               <button
-                onClick={() => setSpotifyUrl('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                key={album.id}
+                onClick={() => setSelectedAlbum(album.id)}
+                className={`relative aspect-square rounded-2xl overflow-hidden group transition-all duration-200 ${
+                  selectedAlbum === album.id
+                    ? 'ring-4 ring-blue-500 shadow-lg'
+                    : 'hover:shadow-md'
+                }`}
               >
-                <X size={18} />
+                <img
+                  src={album.image}
+                  alt={album.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
+                  <p className="text-white font-medium truncate">{album.name}</p>
+                  <p className="text-white/80 text-sm truncate">{album.artist}</p>
+                  <p className="text-white/60 text-xs mt-1">{album.mood}</p>
+                </div>
+                {selectedAlbum === album.id && (
+                  <div className="absolute top-2 right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg">
+                    <Check size={20} />
+                  </div>
+                )}
               </button>
-            )}
+            ))}
           </div>
         </div>
       </div>
@@ -142,7 +199,7 @@ export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset'
           className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-all duration-200"
           onClick={onNext}
         >
-          Next
+          Generate Travel Ideas
         </button>
       </div>
     </div>
