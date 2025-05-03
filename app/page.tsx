@@ -8,6 +8,7 @@ import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
 import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
+import type { Song } from "@/components/search-song";
 
 const screens = [
   WelcomeScreen, 
@@ -20,7 +21,7 @@ const screens = [
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
-  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+  const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export default function Home() {
     setCurrentScreen('home');
   };
 
-  const handleSongSelect = (song: string) => {
+  const handleSongSelect = (song: Song) => {
     setSelectedSongs((prev) => [...prev, song]);
     setCurrentScreen('home');
   };
@@ -87,6 +88,7 @@ export default function Home() {
             selectedPalette={selectedPalette}
             onSongSelect={() => setCurrentScreen('song-selector')}
             selectedSongs={selectedSongs}
+            setSelectedSongs={setSelectedSongs}
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
             selectedAlbum={selectedAlbum}
@@ -113,7 +115,7 @@ export default function Home() {
           <SongSelector
             onBack={handleBack}
             onSelect={handleSongSelect}
-            selectedSong={selectedSongs}
+            selectedSongs={selectedSongs}
           />
         );
       default:

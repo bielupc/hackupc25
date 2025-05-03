@@ -5,10 +5,10 @@ import SongSearcher, { Song } from '@/components/search-song';
 interface SongSelectorProps {
   onBack: () => void;
   onSelect: (song: Song) => void;
-  selectedSong: Song | null;
+  selectedSongs: Song[]; 
 }
 
-export function SongSelector({ onBack, onSelect, selectedSong}: SongSelectorProps) {
+export function SongSelector({ onBack, onSelect, selectedSongs}: SongSelectorProps) {
   return (
      <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white">
       {/* Header */}

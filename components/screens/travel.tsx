@@ -125,10 +125,14 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
           >
             <ChevronLeft size={24} />
           </button>
-          <h2 className="text-white font-medium">{selectedVideo.activity}</h2>
           <div className="w-10"></div>
         </div>
 
+        <div className="absolute top-[5rem] left-0 right-0 px-8 z-50">
+          <div className="bg-black/10 backdrop-blur-sm rounded-lg p-4">
+            <h2 className="text-white text-center text-2xl font-medium">{selectedVideo.activity}</h2>
+          </div>
+        </div>
         <div className="flex-1 relative">
           <video
             src={selectedVideo.video.video_files?.[0].link}

@@ -339,7 +339,7 @@ export function WelcomeScreen({ onNext }: WelcomeScreenProps) {
       <div className="p-4 w-full mt-auto z-10">
         <motion.button
         onClick={onNext}
-        className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors"
+        className="w-full bg-white text-black py-4 rounded-full font-semibold text-lg shadow-md  hover:bg-[#f5f5f5] transition-colors"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.6 }}
