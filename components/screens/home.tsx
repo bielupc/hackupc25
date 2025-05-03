@@ -3,14 +3,19 @@
 import React, { useState } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
-import SongSearcher from '@/components/search-song';
 import type { User } from './auth-page';
+import type { Song } from '../search-song';
+
+
 
 interface HomeScreenProps {
   user?: User | null;
   onNext: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
+  onSongSelect?: () => void;
+  selectedSongs: Song[];
+
   selectedImages: string[];
   setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
   selectedAlbum: string | null;
@@ -53,6 +58,9 @@ export function HomeScreen({
   onNext, 
   onPaletteSelect, 
   selectedPalette = 'Sunset',
+  onSongSelect,
+  selectedSongs,
+
   selectedImages,
   setSelectedImages,
   selectedAlbum,
@@ -99,7 +107,7 @@ export function HomeScreen({
         body: JSON.stringify({
           images: selectedImages,
           palette: selectedPalette,
-          albumMood: selectedAlbumData?.mood || '',
+          songs: selectedSongs.map(song => song.title),
         }),
       });
 
@@ -216,48 +224,28 @@ export function HomeScreen({
               Select Mood Music
             </h2>
           </div>
-          <div className="my-6 px-0 relative">
-            <SongSearcher />
-            {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search for music..."
-              className="w-full pl-10 pr-4 py-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
-            /> */}
-          </div>
-          
-
-{/*           
-          <div className="grid grid-cols-2 gap-4">
-            {curatedAlbums.map((album) => (
-              <button
-                key={album.id}
-                onClick={() => setSelectedAlbum(album.id)}
-                className={`relative aspect-square rounded-2xl overflow-hidden group transition-all duration-200 ${
-                  selectedAlbum === album.id
-                    ? 'ring-4 ring-blue-500 shadow-lg'
-                    : 'hover:shadow-md'
-                }`}
+          <div className="grid grid-cols-2 gap-4 py-4">
+            {selectedSongs.map((song) => (
+              <div
+                key={song.id}
+                className="relative aspect-square rounded-2xl overflow-hidden group transition-all duration-200 hover:shadow-md"
               >
                 <img
-                  src={album.image}
-                  alt={album.name}
+                  src={song.image}
+                  alt={song.title}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
-                  <p className="text-white font-medium truncate">{album.name}</p>
-                  <p className="text-white/80 text-sm truncate">{album.artist}</p>
-                  <p className="text-white/60 text-xs mt-1">{album.mood}</p>
+                  <p className="text-white font-medium truncate">{song.title}</p>
                 </div>
-                {selectedAlbum === album.id && (
-                  <div className="absolute top-2 right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg">
-                    <Check size={20} />
-                  </div>
-                )}
-              </button>
+              </div>
             ))}
-          </div> */}
+          </div>
+          <button onClick={() => onSongSelect?.()} className="flex items-center w-full justify-center gap-2 bg-blue-500 text-white font-semibold py-2 px-4 rounded-xl shadow hover:bg-blue-600">
+            <Plus size={18} />
+            Add Song 
+          </button>
         </div>
       </div>
 

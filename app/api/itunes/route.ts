@@ -6,7 +6,7 @@ export async function GET(req: Request) {
 
   if (!q) return NextResponse.json({ results: [] });
 
-  const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=3`);
+  const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=10`);
   const data = await res.json();
 
   return NextResponse.json(data);

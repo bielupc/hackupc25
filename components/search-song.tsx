@@ -3,7 +3,17 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 
-export default function SongSearcher() {
+export interface Song {
+  id: string;
+  title: string;
+  image: string;
+}
+
+interface SongSearcherProps {
+  onSelect: (song: any) => void;
+}
+
+export default function SongSearcher({ onSelect }: SongSearcherProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -42,18 +52,33 @@ export default function SongSearcher() {
 
       {/* Search Results */}
       {results.length > 0 && (
-        <ul className="mt-4 space-y-3">
+        <ul className="mt-4 space-y-3 overflow-y-auto rounded-lg">
           {results.map((song) => (
-            <li
+            <li onClick={() => onSelect(formatSong(song))}
               key={song.trackId}
-              className="p-3 border rounded-lg bg-white shadow-sm hover:bg-gray-50 transition"
+              className="p-3 border rounded-lg bg-white shadow-sm hover:bg-gray-50 transition flex items-center"
             >
-              <div className="font-medium">{song.trackName}</div>
-              <div className="text-sm text-gray-500">{song.artistName}</div>
+              <img
+          src={song.artworkUrl100}
+          alt={`${song.trackName} album cover`}
+          className="w-16 h-16 rounded-lg mr-4"
+              />
+              <div>
+          <div className="font-medium">{song.trackName}</div>
+          <div className="text-sm text-gray-500">{song.artistName}</div>
+              </div>
             </li>
           ))}
         </ul>
       )}
     </div>
   );
+}
+
+function formatSong(song: any): Song {
+  return {
+    id: song.trackId,
+    title: song.trackName,
+    image: song.artworkUrl100,
+  };
 }
