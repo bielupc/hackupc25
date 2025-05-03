@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/bielupc/hackupc25/blob/4c80996eadef107164abf5a93b4dbd10970e985c/public/full_logo.png" alt="App Screenshot" width="600" />
+  <img src="https://github.com/bielupc/hackupc25/blob/347c6f2a186efbd112a18bc10f2c327a4785680a/public/full_logo_long.png" alt="App Screenshot" width="1000" />
 </p>
 
 # `Unpackr`
