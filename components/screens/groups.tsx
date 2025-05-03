@@ -3,7 +3,6 @@ import { supabase } from '../../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 import { ArrowLeft } from 'lucide-react';
 import type { User } from './auth-page';
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface GroupsScreenProps {
   user: User;
@@ -22,17 +21,6 @@ interface GroupWithUsers {
   }[];
 }
 
-interface UserGroupRecord {
-  group_id: string;
-  user_id: string;
-}
-
-interface GroupRecord {
-  id: string;
-  name: string;
-  code: string;
-}
-
 export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
@@ -42,120 +30,54 @@ export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProp
   const [isLoading, setIsLoading] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
 
-  const fetchGroupUsers = async (groupId: string) => {
-    const { data: usersData } = await supabase
-      .from('user_groups')
-      .select(`
-        users (
-          id,
-          first_name,
-          last_name
-        )
-      `)
-      .eq('group_id', groupId);
-
-    return usersData?.map((u: any) => ({
-      id: u.users.id,
-      firstName: u.users.first_name,
-      lastName: u.users.last_name
-    })) || [];
-  };
-
-  const fetchGroups = async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from('user_groups')
-      .select(`
-        group_id,
-        groups (
-          name,
-          code
-        )
-      `)
-      .eq('user_id', user.id);
-    
-    if (!error && data) {
-      const groupsWithUsers = await Promise.all(
-        data.map(async (g: any) => ({
-          id: g.group_id,
-          name: g.groups.name,
-          code: g.groups.code,
-          users: await fetchGroupUsers(g.group_id)
-        }))
-      );
-      
-      setGroups(groupsWithUsers);
-    }
-    setIsLoading(false);
-  };
-
   useEffect(() => {
-    fetchGroups();
-
-    // Subscribe to changes in user_groups table
-    const userGroupsSubscription = supabase
-      .channel('user_groups_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_groups'
-        },
-        async (payload) => {
-          const newRecord = payload.new as UserGroupRecord | null;
-          const oldRecord = payload.old as UserGroupRecord | null;
-          const groupId = newRecord?.group_id || oldRecord?.group_id;
-          
-          if (groupId) {
-            const affectedGroup = groups.find(g => g.id === groupId);
-            if (affectedGroup) {
-              // Update the users for the affected group
-              const updatedUsers = await fetchGroupUsers(affectedGroup.id);
-              setGroups(currentGroups => 
-                currentGroups.map(g => 
-                  g.id === affectedGroup.id 
-                    ? { ...g, users: updatedUsers }
-                    : g
+    // Fetch groups the user is in
+    const fetchGroups = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('user_groups')
+        .select(`
+          group_id,
+          groups (
+            name,
+            code
+          )
+        `)
+        .eq('user_id', user.id);
+      
+      if (!error && data) {
+        // For each group, fetch all its users
+        const groupsWithUsers = await Promise.all(
+          data.map(async (g: any) => {
+            const { data: usersData } = await supabase
+              .from('user_groups')
+              .select(`
+                users (
+                  id,
+                  first_name,
+                  last_name
                 )
-              );
-            }
-          }
-        }
-      )
-      .subscribe();
+              `)
+              .eq('group_id', g.group_id);
 
-    // Subscribe to changes in groups table
-    const groupsSubscription = supabase
-      .channel('groups_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'groups'
-        },
-        async (payload) => {
-          const newRecord = payload.new as GroupRecord | null;
-          const oldRecord = payload.old as GroupRecord | null;
-          const groupId = newRecord?.id || oldRecord?.id;
-          
-          if (groupId) {
-            const affectedGroup = groups.find(g => g.id === groupId);
-            if (affectedGroup) {
-              // Refresh all groups to ensure we have the latest data
-              await fetchGroups();
-            }
-          }
-        }
-      )
-      .subscribe();
-
-    // Cleanup subscriptions on unmount
-    return () => {
-      userGroupsSubscription.unsubscribe();
-      groupsSubscription.unsubscribe();
+            return {
+              id: g.group_id,
+              name: g.groups.name,
+              code: g.groups.code,
+              users: usersData?.map((u: any) => ({
+                id: u.users.id,
+                firstName: u.users.first_name,
+                lastName: u.users.last_name
+              })) || []
+            };
+          })
+        );
+        
+        setGroups(groupsWithUsers);
+      }
+      setIsLoading(false);
     };
+    fetchGroups();
   }, [user.id]);
 
   const handleCreateGroup = async () => {
