@@ -7,19 +7,12 @@ import { HomeScreen } from "@/components/screens/home";
 import { TravelScreen } from "@/components/screens/travel";
 import { PaletteSelector } from "@/components/screens/palette-selector";
 
-const screens = [
-  SignInScreen,
-  HomeScreen,
-  TravelScreen,
-  // Add more screens here as needed
-];
-
 export default function Home() {
-  const [screenIndex, setScreenIndex] = useState(0);
-  const [showPaletteSelector, setShowPaletteSelector] = useState(false);
+  const [currentScreen, setCurrentScreen] = useState<'sign-in' | 'home' | 'travel' | 'palette-selector'>('sign-in');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
   const [isMobile, setIsMobile] = useState(false);
-  const ScreenComponent = screens[screenIndex];
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -32,39 +25,57 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleNext = () => {
-    if (screenIndex < screens.length - 1) {
-      setScreenIndex(screenIndex + 1);
-    }
-  };
-
   const handlePaletteSelect = (palette: string) => {
+    console.log('palette', palette);
     setSelectedPalette(palette);
-    setShowPaletteSelector(false);
+    setCurrentScreen('home');
   };
 
   const renderContent = () => {
-    if (showPaletteSelector) {
-      return (
-        <PaletteSelector
-          onBack={() => setShowPaletteSelector(false)}
-          onSelect={handlePaletteSelect}
-          selectedPalette={selectedPalette}
-        />
-      );
+    switch (currentScreen) {
+      case 'sign-in':
+        return (
+          <SignInScreen 
+            onNext={() => setCurrentScreen('home')}
+            selectedPalette={selectedPalette}
+            selectedImages={selectedImages}
+            setSelectedImages={setSelectedImages}
+            selectedAlbum={selectedAlbum}
+            setSelectedAlbum={setSelectedAlbum}
+          />
+        );
+      case 'home':
+        return (
+          <HomeScreen 
+            onNext={() => setCurrentScreen('travel')}
+            onPaletteSelect={() => setCurrentScreen('palette-selector')}
+            selectedPalette={selectedPalette}
+            selectedImages={selectedImages}
+            setSelectedImages={setSelectedImages}
+            selectedAlbum={selectedAlbum}
+            setSelectedAlbum={setSelectedAlbum}
+          />
+        );
+      case 'travel':
+        return (
+          <TravelScreen 
+            onNext={() => setCurrentScreen('home')}
+            selectedPalette={selectedPalette}
+            selectedImages={selectedImages}
+            setSelectedImages={setSelectedImages}
+            selectedAlbum={selectedAlbum}
+            setSelectedAlbum={setSelectedAlbum}
+          />
+        );
+      case 'palette-selector':
+        return (
+          <PaletteSelector
+            onBack={() => setCurrentScreen('home')}
+            onSelect={handlePaletteSelect}
+            selectedPalette={selectedPalette}
+          />
+        );
     }
-
-    if (screenIndex === 1) {
-      return (
-        <HomeScreen 
-          onNext={handleNext} 
-          onPaletteSelect={() => setShowPaletteSelector(true)}
-          selectedPalette={selectedPalette}
-        />
-      );
-    }
-
-    return <ScreenComponent onNext={handleNext} />;
   };
 
   return (

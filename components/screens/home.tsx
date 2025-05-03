@@ -2,19 +2,17 @@
 
 import React, { useState } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
+import { colorPalettes } from './palette-selector';
 
 interface HomeScreenProps {
   onNext: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
+  selectedImages: string[];
+  setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedAlbum: string | null;
+  setSelectedAlbum: React.Dispatch<React.SetStateAction<string | null>>;
 }
-
-const colorPalettes = [
-  { name: 'Sunset', colors: ['#FF6B6B', '#FFE66D', '#4ECDC4'] },
-  { name: 'Ocean', colors: ['#1A535C', '#4ECDC4', '#F7FFF7'] },
-  { name: 'Forest', colors: ['#2D6A4F', '#74C69D', '#D8F3DC'] },
-  { name: 'Desert', colors: ['#E9C46A', '#F4A261', '#E76F51'] },
-];
 
 const curatedAlbums = [
   {
@@ -47,9 +45,15 @@ const curatedAlbums = [
   }
 ];
 
-export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset' }: HomeScreenProps) {
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
+export function HomeScreen({ 
+  onNext, 
+  onPaletteSelect, 
+  selectedPalette = 'Sunset',
+  selectedImages,
+  setSelectedImages,
+  selectedAlbum,
+  setSelectedAlbum
+}: HomeScreenProps) {
   const [showAlbumSelector, setShowAlbumSelector] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,16 +143,19 @@ export function HomeScreen({ onNext, onPaletteSelect, selectedPalette = 'Sunset'
           onClick={() => onPaletteSelect?.()}
           className="relative w-full aspect-[3/1] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group"
         >
-          <div className="w-full h-full flex">
+          <div className="w-full h-full flex transition-all duration-300 ease-in-out">
             {currentPalette.colors.map((color, i) => (
               <div
                 key={i}
-                className="flex-1"
+                className="flex-1 transition-colors duration-300 ease-in-out"
                 style={{ backgroundColor: color }}
               />
             ))}
           </div>
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200" />
+          <div className="absolute bottom-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700">
+            {selectedPalette}
+          </div>
         </button>
 
         {/* Album Selection */}

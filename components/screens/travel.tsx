@@ -3,6 +3,11 @@ import { Bookmark, ChevronRight, Star, UserCircle, SlidersHorizontal } from 'luc
 
 interface TravelScreenProps {
   onNext: () => void;
+  selectedPalette?: string;
+  selectedImages?: string[];
+  setSelectedImages?: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedAlbum?: string | null;
+  setSelectedAlbum?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const places = [

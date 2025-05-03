@@ -12,6 +12,11 @@ const GoogleIcon = () => (
 
 interface SignInScreenProps {
   onNext: () => void;
+  selectedPalette?: string;
+  selectedImages?: string[];
+  setSelectedImages?: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedAlbum?: string | null;
+  setSelectedAlbum?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export function SignInScreen({ onNext }: SignInScreenProps) {

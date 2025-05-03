@@ -7,7 +7,7 @@ interface PaletteSelectorProps {
   selectedPalette: string;
 }
 
-const colorPalettes = [
+export const colorPalettes = [
   { name: 'Sunset', colors: ['#FF6B6B', '#FFE66D', '#4ECDC4'] },
   { name: 'Ocean', colors: ['#1A535C', '#4ECDC4', '#F7FFF7'] },
   { name: 'Forest', colors: ['#2D6A4F', '#74C69D', '#D8F3DC'] },
