@@ -89,10 +89,18 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <MobileMockup>
-        {renderScreen()}
-      </MobileMockup>
+    <main
+      className={`flex h-screen flex-col items-center justify-center ${isMobile ? '' : 'p-12 bg-gray-100'}`}
+    >
+      {isMobile ? (
+        <div className="w-full h-full">
+          {renderScreen()}
+        </div>
+      ) : (
+        <MobileMockup>
+          {renderScreen()}
+        </MobileMockup>
+      )}
     </main>
   );
 }
