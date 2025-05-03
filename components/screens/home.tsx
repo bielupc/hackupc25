@@ -72,7 +72,7 @@ export function HomeScreen({
   const selectedAlbumData = curatedAlbums.find(album => album.id === selectedAlbum);
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto">
+    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Header */}
       <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">
         <div className="flex items-center space-x-3">

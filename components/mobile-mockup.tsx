@@ -43,7 +43,7 @@ export function MobileMockup({ children }: MobileMockupProps) {
         <div className="absolute right-0" style={{ top: mockupHeight * 0.25, height: sideButtonHeight * 1.5, width: sideButtonWidth, background: '#222', borderRadius: 4 }} />
         {/* Screen */}
         <div
-          className="absolute top-0 left-0 right-0 bottom-0 m-[12px] bg-white rounded-[40px] overflow-hidden flex flex-col"
+          className="absolute top-0 left-0 right-0 bottom-0 m-[12px] bg-white rounded-[40px] overflow-hidden flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           style={{
             height: `${mockupHeight - borderWidth * 2}px`,
             width: `${mockupWidth - borderWidth * 2}px`,
