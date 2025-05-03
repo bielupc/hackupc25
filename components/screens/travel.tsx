@@ -131,10 +131,14 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
           >
             <ChevronLeft size={24} />
           </button>
-          <h2 className="text-white font-medium">{selectedVideo.activity}</h2>
           <div className="w-10"></div>
         </div>
 
+        <div className="absolute top-[5rem] left-0 right-0 px-8 z-50">
+          <div className="bg-black/10 backdrop-blur-sm rounded-lg p-4">
+            <h2 className="text-white text-center text-2xl font-medium">{selectedVideo.activity}</h2>
+          </div>
+        </div>
         <div className="flex-1 relative">
           <video
             src={selectedVideo.video.video_files?.[0].link}
@@ -164,9 +168,9 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-hidden mt-5">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-hidden pt-5">
       {/* Hero Image Card */}
-      <div className="flex justify-center items-center px-4 pt-4">
+      <div className="flex justify-center items-center px-4 pt-4 mb-4">
         <div className="w-full rounded-2xl shadow-lg overflow-hidden bg-white" style={{ maxWidth: 480 }}>
           <div className="relative h-56 w-full">
             {destinationImage && (
@@ -187,7 +191,7 @@ export function TravelScreen({ onNext, onBack }: TravelScreenProps) {
 
       {/* Activities Section */}
       <div className="flex-1 overflow-y-auto px-4 py-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 ">
           {recommendation.activities.map((activity, index) => {
             // If this activity was last selected, show its video as selected
             const title = activity.title;

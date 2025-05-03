@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft } from 'lucide-react';
 
 interface SignUpScreenProps {
   onDone: (user: { email: string; password: string; firstName: string; lastName: string }) => Promise<boolean>;
+  onBack: () => void;
   error?: string | null;
 }
 
-export function SignUpScreen({ onDone, error }: SignUpScreenProps) {
+export function SignUpScreen({ onDone, onBack, error }: SignUpScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleSignUp = async () => {
+    if (!email || !password || !firstName || !lastName) {
+      setLocalError('All fields are required.');
+      return;
+    }
+    setLocalError(null);
     setIsLoading(true);
     try {
       await onDone({ email, password, firstName, lastName });
@@ -23,14 +30,23 @@ export function SignUpScreen({ onDone, error }: SignUpScreenProps) {
   };
 
   return (
-    <div className="items-center flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 px-4 h-full">
+    <div className="relative items-center flex flex-col justify-center bg-gradient-to-b from-blue-100 via-white to-white px-4 h-full">
+      {/* Back Button at the very top */}
+      <button
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-900"
+        onClick={onBack}
+        type="button"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" />
+        Back
+      </button>
       <div className="w-full flex flex-col max-w-md justify-center flex-1">
         <div className="flex flex-col items-center mb-8">
           <h2 className="text-xl font-semibold mt-2 mb-1">Welcome!</h2>
           <h1 className="text-4xl font-bold mb-2">Sign up</h1>
           <p className="text-gray-500 mb-6">Please fill your information</p>
         </div>
-        {error && <div className="text-red-500 text-center mb-2">{error}</div>}
+        {(localError || error) && <div className="text-red-500 text-center mb-2">{localError || error}</div>}
         <div className="space-y-4 mb-8">
           <div className="bg-gray-200 rounded-2xl px-6 py-4 flex items-center">
             <div className="flex-1">

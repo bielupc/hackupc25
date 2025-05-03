@@ -1,25 +1,23 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Mail, Lock } from 'lucide-react';
+import Image from 'next/image';
+import { Mail, Lock, ArrowLeft } from 'lucide-react';
 
-// Dummy Logo component
 const Logo = () => (
-  <div className="flex items-center justify-center mb-6">
-    <div className="bg-green-500 rounded-full w-10 h-10 flex items-center justify-center mr-2">
-      <span className="text-white text-lg font-bold">U</span>
-    </div>
-    <span className="text-2xl font-bold font-serif">Unpackr</span>
+  <div className="flex flex-col items-center justify-center mb-6">
+    <Image src="/logo_black.svg" alt="Unpackr Logo" width={300} height={75} /> 
   </div>
 );
 
 interface SignInScreenProps {
   onNext: (email: string, password: string) => Promise<boolean>;
   onSignUp: () => void;
+  onBack: () => void;
   error?: string | null;
 }
 
-export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
+export function SignInScreen({ onNext, onSignUp, onBack, error }: SignInScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,11 +32,19 @@ export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
   };
 
   return (
-    <div className="items-center flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 px-4 h-full">
+    <div className="relative items-center flex flex-col justify-center bg-gradient-to-b from-blue-100 via-white to-white px-4 h-full">
+      {/* Back Button at the very top */}
+      <button
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-900"
+        onClick={onBack}
+        type="button"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" />
+        Back
+      </button>
       <div className="w-full flex flex-col max-w-md justify-center flex-1">
         <div className="flex flex-col items-center mb-8">
           <Logo />
-          <h2 className="text-xl font-semibold mt-2 mb-1">Welcome!</h2>
           <h1 className="text-4xl font-bold mb-2">Sign in</h1>
           <p className="text-gray-500 mb-6">Please fill your information</p>
         </div>

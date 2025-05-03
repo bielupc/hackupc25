@@ -1,22 +1,23 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
 import { getActivities } from '@/lib/activities';
-
-
+import { supabase } from '../../lib/supabase';
 
 interface HomeScreenProps {
   user?: User | null;
+  group?: { id: string; name: string; code: string } | null;
   onNext: () => void;
   onPaletteSelect?: () => void;
   selectedPalette?: string;
+  setSelectedPalette: React.Dispatch<React.SetStateAction<string>>;
   onSongSelect?: () => void;
   selectedSongs: Song[];
-
+  setSelectedSongs: React.Dispatch<React.SetStateAction<Song[]>>;
   selectedImages: string[];
   setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
   selectedAlbum: string | null;
@@ -25,12 +26,14 @@ interface HomeScreenProps {
 
 export function HomeScreen({ 
   user,
+  group,
   onNext, 
   onPaletteSelect, 
   selectedPalette = 'Sunset',
+  setSelectedPalette,
   onSongSelect,
   selectedSongs,
-
+  setSelectedSongs,
   selectedImages,
   setSelectedImages,
   selectedAlbum,
@@ -38,6 +41,23 @@ export function HomeScreen({
 }: HomeScreenProps) {
   const [showAlbumSelector, setShowAlbumSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Save preferences when they change
+  useEffect(() => {
+    const savePreferences = async () => {
+      if (!user?.id || !group?.id) return;
+      await supabase.from('group_preferences').upsert({
+        user_id: user.id,
+        group_id: group.id,
+        palette: selectedPalette,
+        selected_images: selectedImages,
+        selected_songs: selectedSongs,
+        selected_album: selectedAlbum,
+      });
+    };
+    savePreferences();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, group?.id, selectedPalette, selectedImages, selectedSongs, selectedAlbum]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -60,6 +80,10 @@ export function HomeScreen({
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
+
+  const removeSong = (index: number) => {
+    setSelectedSongs((prev) => prev.filter((_, i) => i !== index));
+  }
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
 
@@ -118,10 +142,10 @@ export function HomeScreen({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-4">
 
       {/* Header */}
-      <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">
+      <div className="p-4 flex items-center justify-between bg-white backdrop-blur-sm rounded-2xl shadow-sm m-4 sticky top-0 z-10">
         <div className="flex items-center space-x-3">
           <button className="p-2 rounded-lg bg-gray-100 text-gray-600">
             <Grid size={20} />
@@ -129,7 +153,7 @@ export function HomeScreen({
           <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white shadow-md"></div>
           <div>
             <p className="text-xs text-gray-500">Hello,</p>
-            <p className="font-semibold">{user?.firstName || 'User'}</p>
+            <p className="font-semibold -mt-1">{user?.firstName || 'User'}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -194,11 +218,12 @@ export function HomeScreen({
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-4 py-4">
-            {selectedSongs.map((song) => (
+            {selectedSongs.map((song, index) => (
               <div
                 key={song.id}
                 className="relative aspect-square rounded-2xl overflow-hidden group transition-all duration-200 hover:shadow-md"
               >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <img
                   src={song.image}
                   alt={song.title}
@@ -208,8 +233,15 @@ export function HomeScreen({
                 <div className="absolute bottom-4 left-4 right-4">
                   <p className="text-white font-medium truncate">{song.title}</p>
                 </div>
+                <button
+                  onClick={() => removeSong(index)}
+                  className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/70"
+                >
+                  <X size={16} />
+                </button>
               </div>
             ))}
+
             {selectedSongs.length < 2 && (
               <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all duration-200 hover:bg-blue-50/50 group">
                 <button
@@ -260,12 +292,21 @@ export function HomeScreen({
           className={`w-full py-4 rounded-full font-semibold text-lg shadow-md transition-all duration-200 ${
             isLoading 
               ? 'bg-blue-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              : selectedImages.length === 0 || selectedSongs.length === 0
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
           } text-white`}
           onClick={handleGenerateIdeas}
-          disabled={isLoading}
+          disabled={isLoading || selectedImages.length === 0 || selectedSongs.length === 0}
         >
-          {isLoading ? 'Generating Ideas...' : 'Generate Travel Ideas'}
+          {isLoading 
+            ? 'Generating Ideas...' 
+            : selectedImages.length === 0 
+              ? 'Add at least one image'
+              : selectedSongs.length === 0
+                ? 'Add at least one song'
+                : 'Generate Travel Ideas'
+          }
         </button>
       </div>
     </div>

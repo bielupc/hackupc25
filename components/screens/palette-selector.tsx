@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, Check } from 'lucide-react';
+import { ChevronLeft, Check, ArrowLeft } from 'lucide-react';
 
 interface PaletteSelectorProps {
   onBack: () => void;
@@ -24,14 +24,15 @@ export const colorPalettes = [
 
 export function PaletteSelector({ onBack, onSelect, selectedPalette }: PaletteSelectorProps) {
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white">
+    <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white">
       {/* Header */}
       <div className="p-4 flex items-center bg-white/80 backdrop-blur-sm shadow-sm">
         <button
           onClick={onBack}
-          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all duration-200"
+          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all duration-200 flex items-center"
         >
-          <ChevronLeft size={24} />
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          <span>Back</span>
         </button>
       </div>
 

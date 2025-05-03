@@ -8,6 +8,9 @@ import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
 import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
+import type { Song } from "@/components/search-song";
+import { GroupsScreen } from "@/components/screens/groups";
+import { supabase } from "@/lib/supabase";
 
 const screens = [
   WelcomeScreen, 
@@ -18,13 +21,14 @@ const screens = [
 ];
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
-  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+  const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [group, setGroup] = useState<{ id: string; name: string; code: string } | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -37,12 +41,38 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Load preferences when user or group changes
+  useEffect(() => {
+    const loadPreferences = async () => {
+      if (!user?.id || !group?.id) return;
+      const { data } = await supabase
+        .from('group_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('group_id', group.id)
+        .single();
+      if (data) {
+        if (data.palette) setSelectedPalette(data.palette);
+        if (data.selected_images) setSelectedImages(data.selected_images);
+        if (data.selected_songs) setSelectedSongs(data.selected_songs);
+        if (data.selected_album) setSelectedAlbum(data.selected_album);
+      } else {
+        setSelectedPalette('Sunset');
+        setSelectedImages([]);
+        setSelectedSongs([]);
+        setSelectedAlbum(null);
+      }
+    };
+    loadPreferences();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, group?.id]);
+
   const handlePaletteSelect = (palette: string) => {
     setSelectedPalette(palette);
     setCurrentScreen('home');
   };
 
-  const handleSongSelect = (song: string) => {
+  const handleSongSelect = (song: Song) => {
     setSelectedSongs((prev) => [...prev, song]);
     setCurrentScreen('home');
   };
@@ -58,9 +88,41 @@ export default function Home() {
       case 'song-selector':
         setCurrentScreen('home');
         break;
+      case 'groups':
+        setCurrentScreen('sign-in');
+        break;
       default:
         break;
     }
+  };
+
+  const handleLoginSuccess = (user: User) => {
+    setUser(user);
+    setCurrentScreen('groups');
+  };
+
+  const handleGroupSelected = async (group: { id: string; name: string; code: string }) => {
+    setGroup(group);
+    if (user?.id && group?.id) {
+      const { data } = await supabase
+        .from('group_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('group_id', group.id)
+        .single();
+      if (data) {
+        if (data.palette) setSelectedPalette(data.palette);
+        if (data.selected_images) setSelectedImages(data.selected_images);
+        if (data.selected_songs) setSelectedSongs(data.selected_songs);
+        if (data.selected_album) setSelectedAlbum(data.selected_album);
+      } else {
+        setSelectedPalette('Sunset');
+        setSelectedImages([]);
+        setSelectedSongs([]);
+        setSelectedAlbum(null);
+      }
+    }
+    setCurrentScreen('home');
   };
 
   const renderScreen = () => {
@@ -77,16 +139,27 @@ export default function Home() {
           />
         );
       case 'sign-in':
-        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} onBack={() => setCurrentScreen('welcome')} />;
+        return <AuthPage onLoginSuccess={handleLoginSuccess} onBack={() => setCurrentScreen('welcome')} />;
+      case 'groups':
+        return user ? (
+          <GroupsScreen
+            user={user}
+            onGroupSelected={handleGroupSelected}
+            onBack={() => setCurrentScreen('sign-in')}
+          />
+        ) : null;
       case 'home':
         return (
           <HomeScreen
             user={user}
+            group={group}
             onNext={() => setCurrentScreen('travel')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
+            setSelectedPalette={setSelectedPalette}
             onSongSelect={() => setCurrentScreen('song-selector')}
             selectedSongs={selectedSongs}
+            setSelectedSongs={setSelectedSongs}
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
             selectedAlbum={selectedAlbum}
@@ -113,7 +186,7 @@ export default function Home() {
           <SongSelector
             onBack={handleBack}
             onSelect={handleSongSelect}
-            selectedSong={selectedSongs}
+            selectedSongs={selectedSongs}
           />
         );
       default:
