@@ -8,6 +8,7 @@ import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
 import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
+import { TripOverview } from "@/components/screens/trip-overview";
 import type { Song } from "@/components/search-song";
 import { GroupsScreen } from "@/components/screens/groups";
 import { supabase } from "@/lib/supabase";
@@ -21,12 +22,11 @@ const screens = [
 ];
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'groups' | 'home' | 'travel' | 'palette-selector' | 'song-selector' | 'trip-overview'>('welcome');
   const [selectedPalette, setSelectedPalette] = useState('Sunset');
   const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [group, setGroup] = useState<{ id: string; name: string; code: string } | null>(null);
 
@@ -55,12 +55,10 @@ export default function Home() {
         if (data.palette) setSelectedPalette(data.palette);
         if (data.selected_images) setSelectedImages(data.selected_images);
         if (data.selected_songs) setSelectedSongs(data.selected_songs);
-        if (data.selected_album) setSelectedAlbum(data.selected_album);
       } else {
         setSelectedPalette('Sunset');
         setSelectedImages([]);
         setSelectedSongs([]);
-        setSelectedAlbum(null);
       }
     };
     loadPreferences();
@@ -80,7 +78,7 @@ export default function Home() {
   const handleBack = () => {
     switch (currentScreen) {
       case 'travel':
-        setCurrentScreen('home');
+        setCurrentScreen('groups');
         break;
       case 'palette-selector':
         setCurrentScreen('home');
@@ -88,8 +86,8 @@ export default function Home() {
       case 'song-selector':
         setCurrentScreen('home');
         break;
-      case 'groups':
-        setCurrentScreen('sign-in');
+      case 'home':
+        setCurrentScreen('groups');
         break;
       default:
         break;
@@ -114,15 +112,18 @@ export default function Home() {
         if (data.palette) setSelectedPalette(data.palette);
         if (data.selected_images) setSelectedImages(data.selected_images);
         if (data.selected_songs) setSelectedSongs(data.selected_songs);
-        if (data.selected_album) setSelectedAlbum(data.selected_album);
       } else {
         setSelectedPalette('Sunset');
         setSelectedImages([]);
         setSelectedSongs([]);
-        setSelectedAlbum(null);
       }
     }
     setCurrentScreen('home');
+  };
+
+  const handleGoToActivities = (group: { id: string; name: string; code: string }) => {
+    setGroup(group);
+    setCurrentScreen('travel');
   };
 
   const renderScreen = () => {
@@ -131,11 +132,6 @@ export default function Home() {
         return (
           <WelcomeScreen 
             onNext={() => setCurrentScreen('sign-in')}
-            selectedPalette={selectedPalette}
-            selectedImages={selectedImages}
-            setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
           />
         );
       case 'sign-in':
@@ -145,6 +141,7 @@ export default function Home() {
           <GroupsScreen
             user={user}
             onGroupSelected={handleGroupSelected}
+            onGoToActivities={handleGoToActivities}
             onBack={() => setCurrentScreen('sign-in')}
           />
         ) : null;
@@ -153,7 +150,8 @@ export default function Home() {
           <HomeScreen
             user={user}
             group={group}
-            onNext={() => setCurrentScreen('travel')}
+            onBack={handleBack}
+            onNext={() => setCurrentScreen('groups')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
             setSelectedPalette={setSelectedPalette}
@@ -162,8 +160,6 @@ export default function Home() {
             setSelectedSongs={setSelectedSongs}
             selectedImages={selectedImages}
             setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
           />
         );
       case 'travel':
@@ -171,6 +167,8 @@ export default function Home() {
           <TravelScreen
             onNext={() => setCurrentScreen('home')}
             onBack={handleBack}
+            user={user}
+            group={group}
           />
         );
       case 'palette-selector':
@@ -187,6 +185,11 @@ export default function Home() {
             onBack={handleBack}
             onSelect={handleSongSelect}
             selectedSongs={selectedSongs}
+          />
+        );
+      case 'trip-overview':
+        return (
+          <TripOverview
           />
         );
       default:

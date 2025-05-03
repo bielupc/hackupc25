@@ -5,11 +5,6 @@ import Image from 'next/image';
 
 interface WelcomeScreenProps {
   onNext: () => void;
-  selectedPalette?: string;
-  selectedImages?: string[];
-  setSelectedImages?: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedAlbum?: string | null;
-  setSelectedAlbum?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const World = dynamic(() => import("../ui/globe").then((m) => m.World), {
