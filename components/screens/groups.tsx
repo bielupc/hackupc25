@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 import { ArrowLeft } from 'lucide-react';
 import type { User } from './auth-page';
+import { DatePickerWithRange } from "@/components/ui/date-picker"
 
 interface GroupsScreenProps {
   user: User;
@@ -24,11 +25,18 @@ interface GroupWithUsers {
 export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProps) {
   const [mode, setMode] = useState<'list' | 'create' | 'join'>('list');
   const [groupName, setGroupName] = useState('');
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [groups, setGroups] = useState<GroupWithUsers[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
+
+  const handleDateChange = (start: Date | undefined, end: Date | undefined) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
 
   useEffect(() => {
     // Fetch groups the user is in
@@ -85,6 +93,10 @@ export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProp
       setError('Group name is required');
       return;
     }
+    if (!endDate || !startDate) {
+      setError('Start and end dates are required');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -99,7 +111,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProp
     }
     // Add user to group
     await supabase.from('user_groups').insert([
-      { user_id: user.id, group_id: groupId }
+      { user_id: user.id, group_id: groupId, trip_start_date: startDate, trip_end_date: endDate }
     ]);
     setCreatedCode(code);
     setGroups([...groups, { id: groupId, name: groupName, code, users: [] }]);
@@ -202,6 +214,13 @@ export function GroupsScreen({ user, onGroupSelected, onBack }: GroupsScreenProp
             onChange={e => setGroupName(e.target.value)}
             className="p-3 rounded-xl border border-gray-300"
           />
+
+          <DatePickerWithRange
+            className="w-full"
+            onDateChange={handleDateChange} // Pass date change handler
+          />
+
+
           <button onClick={handleCreateGroup} className="bg-blue-600 text-white py-3 rounded-full font-semibold" disabled={isLoading}>
             {isLoading ? 'Creating...' : 'Create'}
           </button>
