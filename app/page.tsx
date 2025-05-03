@@ -80,7 +80,7 @@ export default function Home() {
   const handleBack = () => {
     switch (currentScreen) {
       case 'travel':
-        setCurrentScreen('home');
+        setCurrentScreen('groups');
         break;
       case 'palette-selector':
         setCurrentScreen('home');
@@ -88,8 +88,8 @@ export default function Home() {
       case 'song-selector':
         setCurrentScreen('home');
         break;
-      case 'groups':
-        setCurrentScreen('sign-in');
+      case 'home':
+        setCurrentScreen('groups');
         break;
       default:
         break;
@@ -125,6 +125,11 @@ export default function Home() {
     setCurrentScreen('home');
   };
 
+  const handleGoToActivities = (group: { id: string; name: string; code: string }) => {
+    setGroup(group);
+    setCurrentScreen('travel');
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'welcome':
@@ -145,6 +150,8 @@ export default function Home() {
           <GroupsScreen
             user={user}
             onGroupSelected={handleGroupSelected}
+            onGoToActivities={handleGoToActivities}
+            onBack={() => setCurrentScreen('sign-in')}
           />
         ) : null;
       case 'home':
@@ -152,8 +159,8 @@ export default function Home() {
           <HomeScreen
             user={user}
             group={group}
-            onNext={() => setCurrentScreen('travel')}
-            onBack={() => setCurrentScreen('groups')}
+            onBack={handleBack}
+            onNext={() => setCurrentScreen('groups')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
             setSelectedPalette={setSelectedPalette}
@@ -169,9 +176,10 @@ export default function Home() {
       case 'travel':
         return (
           <TravelScreen
-            user={user}
             onNext={() => setCurrentScreen('home')}
-            onBack={() => setCurrentScreen('groups')}
+            onBack={handleBack}
+            user={user}
+            group={group}
           />
         );
       case 'palette-selector':
