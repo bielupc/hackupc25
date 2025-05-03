@@ -55,11 +55,22 @@ export function HomeScreen({
   setSelectedAlbum
 }: HomeScreenProps) {
   const [showAlbumSelector, setShowAlbumSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file));
+      const newImages = await Promise.all(
+        Array.from(files).map(async (file) => {
+          return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+          });
+        })
+      );
       setSelectedImages(prev => [...prev, ...newImages].slice(0, 6));
     }
   };
@@ -70,6 +81,40 @@ export function HomeScreen({
 
   const currentPalette = colorPalettes.find(p => p.name === selectedPalette) || colorPalettes[0];
   const selectedAlbumData = curatedAlbums.find(album => album.id === selectedAlbum);
+
+  const handleGenerateIdeas = async () => {
+    try {
+      setIsLoading(true);
+      const selectedAlbumData = curatedAlbums.find(album => album.id === selectedAlbum);
+      
+      const response = await fetch('/api/travel/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          images: selectedImages,
+          palette: selectedPalette,
+          albumMood: selectedAlbumData?.mood || '',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate recommendations');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('lastTravelRecommendation', JSON.stringify(data));
+
+      // After successful API call, proceed to next screen
+      onNext();
+    } catch (error) {
+      console.error('Error generating travel ideas:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white text-gray-900 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -203,10 +248,15 @@ export function HomeScreen({
       {/* Next Button */}
       <div className="p-4 w-full">
         <button
-          className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-all duration-200"
-          onClick={onNext}
+          className={`w-full py-4 rounded-full font-semibold text-lg shadow-md transition-all duration-200 ${
+            isLoading 
+              ? 'bg-blue-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700'
+          } text-white`}
+          onClick={handleGenerateIdeas}
+          disabled={isLoading}
         >
-          Generate Travel Ideas
+          {isLoading ? 'Generating Ideas...' : 'Generate Travel Ideas'}
         </button>
       </div>
     </div>

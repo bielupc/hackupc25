@@ -26,16 +26,28 @@ export default function Home() {
   }, []);
 
   const handlePaletteSelect = (palette: string) => {
-    console.log('palette', palette);
     setSelectedPalette(palette);
     setCurrentScreen('home');
   };
 
-  const renderContent = () => {
+  const handleBack = () => {
+    switch (currentScreen) {
+      case 'travel':
+        setCurrentScreen('home');
+        break;
+      case 'palette-selector':
+        setCurrentScreen('home');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const renderScreen = () => {
     switch (currentScreen) {
       case 'sign-in':
         return (
-          <SignInScreen 
+          <SignInScreen
             onNext={() => setCurrentScreen('home')}
             selectedPalette={selectedPalette}
             selectedImages={selectedImages}
@@ -46,7 +58,7 @@ export default function Home() {
         );
       case 'home':
         return (
-          <HomeScreen 
+          <HomeScreen
             onNext={() => setCurrentScreen('travel')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}
@@ -58,39 +70,29 @@ export default function Home() {
         );
       case 'travel':
         return (
-          <TravelScreen 
+          <TravelScreen
             onNext={() => setCurrentScreen('home')}
-            selectedPalette={selectedPalette}
-            selectedImages={selectedImages}
-            setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
+            onBack={handleBack}
           />
         );
       case 'palette-selector':
         return (
           <PaletteSelector
-            onBack={() => setCurrentScreen('home')}
+            onBack={handleBack}
             onSelect={handlePaletteSelect}
             selectedPalette={selectedPalette}
           />
         );
+      default:
+        return null;
     }
   };
 
   return (
-    <main
-      className={`flex h-screen flex-col items-center justify-center ${isMobile ? '' : 'p-12 bg-gray-100'}`}
-    >
-      {isMobile ? (
-        <div className="w-full h-full">
-          {renderContent()}
-        </div>
-      ) : (
-        <MobileMockup>
-          {renderContent()}
-        </MobileMockup>
-      )}
+    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <MobileMockup>
+        {renderScreen()}
+      </MobileMockup>
     </main>
   );
 }
