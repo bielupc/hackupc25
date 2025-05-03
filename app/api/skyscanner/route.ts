@@ -3,33 +3,34 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export async function GET() {
+export async function POST(req: Request) {
   const apiKey = process.env.NEXT_PUBLIC_FLIGHTS_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json({ error: 'API key not found' }, { status: 500 });
   }
 
-  const searchUrl = 'https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create';
-
-  const searchPayload = {
-    query: {
-      market: 'UK',
-      locale: 'en-GB',
-      currency: 'GBP',
-      query_legs: [
-        {
-          origin_place_id: { iata: 'BCN' },
-          destination_place_id: { iata: 'SZX' },
-          date: { year: 2025, month: 10, day: 30 },
-        },
-      ],
-      adults: 1,
-      cabin_class: 'CABIN_CLASS_ECONOMY',
-    },
-  };
-
   try {
+    const body = await req.json();
+    const { query_legs } = body;
+
+    if (!query_legs || !Array.isArray(query_legs) || query_legs.length === 0) {
+      return NextResponse.json({ error: 'Missing or invalid query_legs' }, { status: 400 });
+    }
+
+    const searchUrl = 'https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create';
+
+    const searchPayload = {
+      query: {
+        market: 'ES',
+        locale: 'en-GB',
+        currency: 'EUR',
+        query_legs,
+        adults: 1,
+        cabin_class: 'CABIN_CLASS_ECONOMY',
+      },
+    };
+
     const createRes = await fetch(searchUrl, {
       method: 'POST',
       headers: {
@@ -48,23 +49,112 @@ export async function GET() {
     const sessionToken = createData.sessionToken;
     const pollUrl = `https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/poll/${sessionToken}`;
 
-    const pollRes = await fetch(pollUrl, {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Función para esperar x milisegundos
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const pollData = await pollRes.json();
+    let pollData;
+    let agents;
+    const maxRetries = 3;
+    let attempt = 0;
 
-    if (!pollRes.ok) {
-      return NextResponse.json({ error: 'Failed to poll results', detail: pollData }, { status: 500 });
+    while (attempt < maxRetries) {
+      const pollRes = await fetch(pollUrl, {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      pollData = await pollRes.json();
+
+      if (!pollRes.ok) {
+        return NextResponse.json({ error: 'Failed to poll results', detail: pollData }, { status: 500 });
+      }
+
+      agents = pollData?.content?.results?.agents;
+
+      if (agents && Object.keys(agents).length > 0) {
+        break; // Exit loop if we have valid agents
+      }
+
+      attempt++;
+      await delay(1500);
     }
 
-    return NextResponse.json(pollData);
+    if (!agents || Object.keys(agents).length === 0) {
+      return NextResponse.json({ error: 'No flight results found after retries' }, { status: 404 });
+    }
+
+    return NextResponse.json(formatData(pollData));
   } catch (error: any) {
-    console.error(error);
+    console.error('API error:', error);
     return NextResponse.json({ error: 'Unexpected error', message: error.message }, { status: 500 });
   }
+}
+
+
+function formatData(data){
+  const results = data?.content?.results;
+  //console.log('raw data:', data);
+  const cheapestItineraryId = data.content.sortingOptions?.cheapest[0]?.itineraryId;
+  console.log('cheapestItineraryId', cheapestItineraryId)
+  const cheapestItinerary = results.itineraries[cheapestItineraryId];
+  
+  const segmentId = transformString(cheapestItineraryId);
+  
+  const cheapestSegment = results.segments[segmentId];
+  //console.log('cheapestSegment', cheapestSegment)
+
+  const arrivalDateTime = cheapestSegment.arrivalDateTime;
+  const departureDateTime = cheapestSegment.departureDateTime;
+  const destinationId = cheapestSegment.destinationPlaceId;
+  const originId = cheapestSegment.originPlaceId;
+
+  const destination = results.places[destinationId].iata;
+  const origin = results.places[originId].iata;
+
+  let minPrice = Number.MAX_VALUE;
+  let minPriceUnit = '';
+  for (let pricingOption of cheapestItinerary.pricingOptions) {
+    let { amount, unit } = pricingOption.price;
+    console.log('pricingOption', pricingOption);
+    let bestAgent = pricingOption.agentIds[0];
+    if (amount < minPrice) {
+      minPrice = amount;
+      minPriceUnit = unit;
+      bestAgent = pricingOption.agentIds;
+    }
+  }
+
+  if (minPriceUnit == 'PRICE_UNIT_MILLI') {
+    minPrice = minPrice / 1000;
+  }
+  // TODO: add airline name
+  return {
+    startDate: departureDateTime,
+    endDate: arrivalDateTime,
+    origin: origin,
+    destination: destination,
+    minPrice: minPrice
+    //raw_data: data,
+  }
+}
+
+
+function transformString(input) {
+  //9772-2505150725--31685-0-10413-2505150925
+  //9722-10413-2505150725-2505150925--31685
+
+  const parts = input.split('--');
+  
+  const firstPart = parts[0];
+  const secondPart = parts[1];
+  
+  const firstNumbers = firstPart.split('-');
+  const secondNumbers = secondPart.split('-');
+  
+  const newString = `${firstNumbers[0]}-${secondNumbers[2]}-${firstNumbers[1]}-${secondNumbers[3]}--${secondNumbers[0]}`;
+  
+  return newString;
 }
