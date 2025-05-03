@@ -49,12 +49,11 @@ export function HomeScreen({
         palette: selectedPalette,
         selected_images: selectedImages,
         selected_songs: selectedSongs,
-        selected_album: selectedAlbum,
       });
     };
     savePreferences();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, group?.id, selectedPalette, selectedImages, selectedSongs, selectedAlbum]);
+  }, [user?.id, group?.id, selectedPalette, selectedImages, selectedSongs]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -102,7 +101,6 @@ export function HomeScreen({
         palette: selectedPalette,
         selected_images: selectedImages,
         selected_songs: selectedSongs,
-        selected_album: selectedAlbum,
       });
 
       // Check if all members have submitted preferences
