@@ -14,13 +14,18 @@ const Logo = () => (
 );
 
 interface SignInScreenProps {
-  onNext: () => void;
+  onNext: (email: string, password: string) => boolean;
   onSignUp: () => void;
+  error?: string | null;
 }
 
-export function SignInScreen({ onNext, onSignUp }: SignInScreenProps) {
+export function SignInScreen({ onNext, onSignUp, error }: SignInScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleSignIn = () => {
+    onNext(email, password);
+  };
 
   return (
     <div className="flex flex-col min-h-screen justify-center items-center bg-gradient-to-br from-white to-blue-50 px-4">
@@ -31,6 +36,7 @@ export function SignInScreen({ onNext, onSignUp }: SignInScreenProps) {
           <h1 className="text-4xl font-bold mb-2">Sign in</h1>
           <p className="text-gray-500 mb-6">Please fill your information</p>
         </div>
+        {error && <div className="text-red-500 text-center mb-2">{error}</div>}
         <div className="space-y-4 mb-8">
           <div className="bg-gray-100 rounded-2xl px-6 py-4 flex items-center">
             <Mail className="w-5 h-5 text-gray-400 mr-3" />
@@ -55,7 +61,7 @@ export function SignInScreen({ onNext, onSignUp }: SignInScreenProps) {
         </div>
         <button
           className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors mb-6"
-          onClick={onNext}
+          onClick={handleSignIn}
         >
           Sign in now
         </button>

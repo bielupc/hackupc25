@@ -6,7 +6,7 @@ import { HomeScreen } from "@/components/screens/home";
 import { TravelScreen } from "@/components/screens/travel";
 import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
-import { AuthPage } from "@/components/screens/auth-page";
+import { AuthPage, User } from "@/components/screens/auth-page";
 
 const screens = [
   WelcomeScreen, 
@@ -22,6 +22,7 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -66,10 +67,11 @@ export default function Home() {
           />
         );
       case 'sign-in':
-        return <AuthPage />;
+        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} />;
       case 'home':
         return (
           <HomeScreen
+            user={user}
             onNext={() => setCurrentScreen('travel')}
             onPaletteSelect={() => setCurrentScreen('palette-selector')}
             selectedPalette={selectedPalette}

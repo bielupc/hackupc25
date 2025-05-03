@@ -1,13 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SignInScreen } from './sign-in';
 import { SignUpScreen } from './sign-up';
 
-export function AuthPage() {
+export interface User {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface AuthPageProps {
+  onLoginSuccess: (user: User) => void;
+}
+
+export function AuthPage({ onLoginSuccess }: AuthPageProps) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
+  const [users, setUsers] = useState<User[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('users');
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  // Save users to localStorage whenever users change
+  useEffect(() => {
+    localStorage.setItem('users', JSON.stringify(users));
+  }, [users]);
+
+  const handleSignUp = (user: User) => {
+    if (users.some(u => u.email === user.email)) {
+      setError('User already exists');
+      return false;
+    }
+    setUsers([...users, user]);
+    setError(null);
+    setMode('sign-in');
+    return true;
+  };
+
+  const handleSignIn = (email: string, password: string) => {
+    const user = users.find(u => u.email === email && u.password === password);
+    if (!user) {
+      setError('Invalid credentials');
+      return false;
+    }
+    setError(null);
+    onLoginSuccess(user);
+    return true;
+  };
 
   return mode === 'sign-in' ? (
-    <SignInScreen onNext={() => {}} onSignUp={() => setMode('sign-up')} />
+    <SignInScreen
+      onNext={handleSignIn}
+      onSignUp={() => { setMode('sign-up'); setError(null); }}
+      error={error}
+    />
   ) : (
-    <SignUpScreen onDone={() => setMode('sign-in')} />
+    <SignUpScreen
+      onDone={handleSignUp}
+      error={error}
+    />
   );
 } 

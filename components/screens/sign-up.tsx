@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
 
 interface SignUpScreenProps {
-  onDone: () => void; // Navigates back to sign in
+  onDone: (user: { email: string; password: string; firstName: string; lastName: string }) => boolean;
+  error?: string | null;
 }
 
-export function SignUpScreen({ onDone }: SignUpScreenProps) {
+export function SignUpScreen({ onDone, error }: SignUpScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+
+  const handleSignUp = () => {
+    onDone({ email, password, firstName, lastName });
+  };
 
   return (
     <div className="flex flex-col min-h-screen justify-center items-center bg-gradient-to-br from-white to-blue-50 px-4">
@@ -19,6 +24,7 @@ export function SignUpScreen({ onDone }: SignUpScreenProps) {
           <h1 className="text-4xl font-bold mb-2">Sign up</h1>
           <p className="text-gray-500 mb-6">Please fill your information</p>
         </div>
+        {error && <div className="text-red-500 text-center mb-2">{error}</div>}
         <div className="space-y-4 mb-8">
           <div className="bg-gray-200 rounded-2xl px-6 py-4 flex items-center">
             <div className="flex-1">
@@ -75,7 +81,7 @@ export function SignUpScreen({ onDone }: SignUpScreenProps) {
         </div>
         <button
           className="w-full bg-blue-600 text-white py-4 rounded-full font-semibold text-lg shadow-md hover:bg-blue-700 transition-colors mb-6"
-          onClick={onDone}
+          onClick={handleSignUp}
         >
           Done
         </button>
