@@ -15,9 +15,10 @@ const Logo = () => (
 
 interface SignInScreenProps {
   onNext: () => void;
+  onSignUp: () => void;
 }
 
-export function SignInScreen({ onNext }: SignInScreenProps) {
+export function SignInScreen({ onNext, onSignUp }: SignInScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -26,9 +27,9 @@ export function SignInScreen({ onNext }: SignInScreenProps) {
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mt-8 mb-8">
           <Logo />
-          <h2 className="text-xl font-semibold mt-2 mb-1">Wellcome!</h2>
+          <h2 className="text-xl font-semibold mt-2 mb-1">Welcome!</h2>
           <h1 className="text-4xl font-bold mb-2">Sign in</h1>
-          <p className="text-gray-500 mb-6">Please fill your informations</p>
+          <p className="text-gray-500 mb-6">Please fill your information</p>
         </div>
         <div className="space-y-4 mb-8">
           <div className="bg-gray-100 rounded-2xl px-6 py-4 flex items-center">
@@ -59,7 +60,7 @@ export function SignInScreen({ onNext }: SignInScreenProps) {
           Sign in now
         </button>
         <div className="flex justify-center">
-          <button className="text-lg font-semibold text-gray-900 hover:underline" type="button">
+          <button className="text-lg font-semibold text-gray-900 hover:underline" type="button" onClick={onSignUp}>
             Sign up
           </button>
         </div>

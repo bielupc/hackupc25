@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { MobileMockup } from "@/components/mobile-mockup";
-import { SignInScreen } from "@/components/screens/sign-in";
 import { HomeScreen } from "@/components/screens/home";
 import { TravelScreen } from "@/components/screens/travel";
 import { PaletteSelector } from "@/components/screens/palette-selector";
 import { WelcomeScreen } from "@/components/screens/welcome";
+import { AuthPage } from "@/components/screens/auth-page";
 
 const screens = [
   WelcomeScreen, 
-  SignInScreen,
+  AuthPage,
   HomeScreen,
   TravelScreen,
   // Add more screens here as needed
@@ -65,18 +65,8 @@ export default function Home() {
             setSelectedAlbum={setSelectedAlbum}
           />
         );
-
       case 'sign-in':
-        return (
-          <SignInScreen
-            onNext={() => setCurrentScreen('home')}
-            selectedPalette={selectedPalette}
-            selectedImages={selectedImages}
-            setSelectedImages={setSelectedImages}
-            selectedAlbum={selectedAlbum}
-            setSelectedAlbum={setSelectedAlbum}
-          />
-        );
+        return <AuthPage />;
       case 'home':
         return (
           <HomeScreen
