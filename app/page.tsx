@@ -3,12 +3,19 @@
 import { useState, useEffect } from "react";
 import { MobileMockup } from "@/components/mobile-mockup";
 import { HomeScreen } from "@/components/screens/home";
-import { getEvents } from "@/lib/events";
-import { getFlights } from "@/lib/flights";
+import { TravelScreen } from "@/components/screens/travel";
+import { PaletteSelector } from "@/components/screens/palette-selector";
+import { WelcomeScreen } from "@/components/screens/welcome";
 import { AuthPage, User } from "@/components/screens/auth-page";
 import { SongSelector} from "@/components/screens/songs-selector";
 
-
+const screens = [
+  WelcomeScreen, 
+  AuthPage,
+  HomeScreen,
+  TravelScreen,
+  // Add more screens here as needed
+];
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<'welcome' | 'sign-in' | 'home' | 'travel' | 'palette-selector' | 'song-selector'>('welcome');
@@ -70,7 +77,7 @@ export default function Home() {
           />
         );
       case 'sign-in':
-        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} />;
+        return <AuthPage onLoginSuccess={(user) => { setUser(user); setCurrentScreen('home'); }} onBack={() => setCurrentScreen('welcome')} />;
       case 'home':
         return (
           <HomeScreen
@@ -115,10 +122,18 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-12 bg-gray-100">
-      <MobileMockup>
-        <ScreenComponent onNext={getFlights} />
-      </MobileMockup>
+    <main
+      className={`flex h-screen flex-col items-center justify-center ${isMobile ? '' : 'p-12 bg-gray-100'}`}
+    >
+      {isMobile ? (
+        <div className="w-full h-full">
+          {renderScreen()}
+        </div>
+      ) : (
+        <MobileMockup>
+          {renderScreen()}
+        </MobileMockup>
+      )}
     </main>
   );
 }

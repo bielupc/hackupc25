@@ -5,6 +5,7 @@ import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, 
 import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
+import { getActivities } from '@/lib/activities';
 
 
 
@@ -66,6 +67,7 @@ export function HomeScreen({
     try {
       setIsLoading(true);
       
+      /*
       const response = await fetch('/api/travel/recommendations', {
         method: 'POST',
         headers: {
@@ -83,6 +85,23 @@ export function HomeScreen({
       }
 
       const data = await response.json();
+      */
+
+      // override activities with the activities from our api
+
+      // example start.gte '2025-05-01T00:00:00'
+      // example start.lte '2025-05-31T23:59:59'
+      const data = {
+        'place': 'BCN',
+        'startDate': '2025-05-01T00:00:00',
+        'endDate': '2025-05-31T23:59:59',
+        'activities': void[],
+      }
+      console.log('hola');
+      data.activities = await getActivities(data);
+      console.log('Generated travel ideas:', data);
+  
+
       localStorage.setItem('lastTravelRecommendation', JSON.stringify(data));
 
       // After successful API call, proceed to next screen
