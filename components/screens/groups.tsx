@@ -195,7 +195,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
         </>
       )}
       {mode === 'create' && (
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 px-4">
           <input
             type="text"
             placeholder="Group name"
@@ -211,7 +211,7 @@ export function GroupsScreen({ user, onGroupSelected}: GroupsScreenProps) {
         </div>
       )}
       {mode === 'join' && (
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 px-4">
           <input
             type="text"
             placeholder="Enter group code"
