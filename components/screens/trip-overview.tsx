@@ -64,7 +64,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
   }
 
   return (
-    <div className='h-[400rem] overflow-scroll bg-blue-100/40 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pt-4'>
+    <div className='h-screen w-full overflow-y-auto bg-blue-100/40 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pt-2 sm:pt-4 pb-20'>
 
       {showTitle ? (
         <HeroHighlight>
@@ -90,7 +90,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
               transition: { duration: 1 },
             }}
             onAnimationComplete={() => setTimeout(() => setShowTitle(false), 3000)}
-            className="text-2xl px-4 md:text-4xl lg:text-5xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
+            className="text-xl px-2 sm:px-4 md:text-4xl lg:text-5xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
           >
             You're all set for your trip to... <br />
             <Highlight className="text-black dark:text-white mt-2">
@@ -106,7 +106,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
           className="mt-8 text-center h-full"
         >
       
-            <div className="pt-0 py-6">
+            <div className="pt-0 py-4 sm:py-6">
         <Header
           user={user}
           onBack={onBack}
@@ -114,17 +114,17 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
         />
 
             <TripSummary groupId={group.id} userId={user.id} recommendation={recommendation} />
-            <div className="p-4 m-4">
-              <h2 className="text-xl font-bold mb-4">Your Trip Vibes</h2>
-              <div className="py-4 w-full">
+            <div className="p-2 sm:p-4 m-2 sm:m-4">
+              <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4">Your Trip Vibes</h2>
+              <div className="py-2 sm:py-4 w-full">
                 <TravelVibesSection groupId={group.id} />
               </div>
 
             </div>
             <ItinerarySection recommendations={recommendation} />
             
-            <div className="px-4 ">
-              <button onClick={onBack} className="bottom-4 w-3/4 bg-blue-500 hover:bg-blue-600 text-white rounded-full py-4 font-medium">
+            <div className="px-2 sm:px-4">
+              <button onClick={onBack} className="bottom-4 w-full sm:w-3/4 bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 sm:py-4 font-medium">
                 Save this trip
               </button>
             </div>
@@ -165,15 +165,13 @@ function TripSummary({userId, groupId, recommendation }) {
   }
 
 
-      
-  
       console.log('Cost data:', data);
   
       if (data) {
         setCostAnada(data.cost_anada);
         setCostTornada(data.cost_tornada);
-        setStartDate(data.trip_start_date);
-        setEndDate(data.trip_end_date);
+        setStartDate(data.groups.trip_start_date);
+        setEndDate(data.groups.trip_end_date);
       }
     };
   
@@ -182,20 +180,20 @@ function TripSummary({userId, groupId, recommendation }) {
 
 
   return (
-    <div className="mt-6 mb-8">
-      <h1 className="text-3xl font-bold mb-2 px-4">
+    <div className="mt-4 sm:mt-6 mb-4 sm:mb-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2 px-2 sm:px-4">
         Your trip to <span className="text-blue-500">{recommendation.destination}</span>
       </h1>
-      <p className="text-gray-500 mb-4">You're all set for an amazing adventure!</p>
+      <p className="text-sm sm:text-base text-gray-500 mb-2 sm:mb-4 px-2 sm:px-4">You're all set for an amazing adventure!</p>
 
-      <div className="bg-white rounded-2xl m-4 p-4 shadow-sm">
+      <div className="bg-white rounded-2xl m-2 sm:m-4 p-3 sm:p-4 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <Calendar className="h-5 w-5 text-blue-500" />
           </div>
           <div>
-            <p className="text-sm text-left text-gray-500">Trip dates</p>
-            <p className="font-medium">{`${startDate ? startDate.split('T')[0] : ""} | ${endDate ? endDate.split("T")[0] : ""}`}</p>
+            <p className="text-xs sm:text-sm text-left text-gray-500">Trip dates</p>
+            <p className="text-sm sm:text-base font-medium">{`${startDate ? startDate.split('T')[0] : ""} | ${endDate ? endDate.split("T")[0] : ""}`}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 mb-4">
@@ -203,8 +201,8 @@ function TripSummary({userId, groupId, recommendation }) {
             <span className="text-blue-500 text-lg">€</span>
             </div>
             <div>
-            <p className="text-sm text-left text-gray-500">Cost</p>
-            <p className="font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada ?? 512.45}€ </p>
+            <p className="text-xs sm:text-sm text-left text-gray-500">Cost</p>
+            <p className="text-sm sm:text-base font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada ?? 512.45}€ </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -212,8 +210,8 @@ function TripSummary({userId, groupId, recommendation }) {
             <Users className="h-5 w-5 text-blue-500" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Travelers</p>
-            <p className="font-medium">4 friends</p>
+            <p className="text-xs sm:text-sm text-gray-500">Travelers</p>
+            <p className="text-sm sm:text-base font-medium">4 friends</p>
           </div>
         </div>
       </div>
@@ -245,17 +243,17 @@ function ItinerarySection({ recommendations }: { recommendations: TravelRecommen
   if (!recommendations) return null;
   
   return (
-    <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4">Local Activities</h2>
+    <div className="mb-4 sm:mb-8">
+      <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4 px-2 sm:px-4">Local Activities</h2>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl overflow-hidden shadow-sm mx-4 py-2"
+        className="bg-white rounded-2xl overflow-hidden shadow-sm mx-2 sm:mx-4 py-2"
       >
-        <div className="py-4 px-5">
-          <div className="space-y-4">
+        <div className="py-3 sm:py-4 px-3 sm:px-5">
+          <div className="space-y-3 sm:space-y-4">
             {recommendations.activities.map((activity, index) => (
               <React.Fragment key={index}>
                 <div className="flex gap-3">
@@ -264,22 +262,22 @@ function ItinerarySection({ recommendations }: { recommendations: TravelRecommen
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-                      <p className="font-medium text-left">{activity.title}</p>
+                      <p className="text-sm sm:text-base font-medium text-left">{activity.title}</p>
                       {activity.start_local && (
-                        <span className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-full w-fit">
+                        <span className="text-[10px] sm:text-xs text-blue-500 bg-blue-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full w-fit">
                           {activity.start_local.split("T")[0]} <br/> {formatTime(activity.start_local)}
                         </span>
                       )}
                     </div>
                     {activity.description && (
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-2 text-left">
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2 text-left">
                         {activity.description.replace(/Sourced from predicthq\.com( - )?/i, "").trim()}
                         </p>
                     )}
                     {activity.phq_attendance && (
                       <div className="flex items-center gap-1 mt-1">
                         <Users className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs text-gray-400">{activity.phq_attendance} attendees</span>
+                        <span className="text-[10px] sm:text-xs text-gray-400">{activity.phq_attendance} attendees</span>
                       </div>
                     )}
                   </div>
@@ -323,7 +321,7 @@ function TravelVibesSection({ groupId }: { groupId: string }) {
   const images = submittedPreferences[0]?.selected_images || [];
 
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className="grid grid-cols-12 gap-2 sm:gap-4">
       {/* Dynamically render the images */}
       {images[0] && (
         <div className="col-span-7">

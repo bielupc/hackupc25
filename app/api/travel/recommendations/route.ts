@@ -49,7 +49,9 @@ export async function POST(request: Request) {
     }
 
     const imageAnalysis = JSON.parse(
-      imageAnalysisResponse.output_text.replace(/```json\s*|\s*```/g, "")
+      imageAnalysisResponse.output_text.match(
+        /```json\n([\s\S]*?)\n```/
+      )?.[1] || imageAnalysisResponse.output_text
     );
 
     // Validate and ensure the image analysis has the required structure
@@ -135,7 +137,8 @@ export async function POST(request: Request) {
     }
 
     const parsedResponse = JSON.parse(
-      finalResponse.output_text.replace(/```json\s*|\s*```/g, "")
+      finalResponse.output_text.match(/```json\n([\s\S]*?)\n```/)?.[1] ||
+        finalResponse.output_text
     );
     console.log(parsedResponse);
     return NextResponse.json(parsedResponse);

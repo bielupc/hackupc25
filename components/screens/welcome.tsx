@@ -309,37 +309,43 @@ export function WelcomeScreen({ onNext }: WelcomeScreenProps) {
   ];
 
   return (
-    <div className="relative flex flex-col justify-center items-center h-full bg-gradient-to-b from-blue-100 via-white to-white text-black overflow-hidden pt-[7rem]">
+    <div className="relative flex flex-col justify-center items-center h-full bg-gradient-to-b from-blue-100 via-white to-white text-black overflow-hidden pt-[3rem] md:pt-[7rem]">
         <motion.div
-          className="text-5xl text-center font-bold z-10 top-20 text-black"
+          className="text-3xl md:text-5xl text-center font-bold z-10 top-10 md:top-20 text-black px-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           Welcome to <br/>
-          <Image src="/logo_black.svg" alt="Unpackr" width={300} height={75} className="mt-2" />
+          <Image 
+            src="/logo_black.svg" 
+            alt="Unpackr" 
+            width={300} 
+            height={75} 
+            className="mt-2 w-[200px] md:w-[300px] h-auto" 
+          />
         </motion.div>
 
         <motion.p
-          className="text-center font-bold text-lg pt-10 z-10"
+          className="text-center font-bold text-base md:text-lg pt-6 md:pt-10 z-10 px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         > Let's get started!</motion.p>
 
-      <div className="absolute left-1/2 -translate-x-1/2 translate-y-1/4 bottom-0 aspect-square w-[200%] h-auto">
+      <div className="absolute left-1/2 -translate-x-1/2 translate-y-[30%] md:translate-y-[25%] lg:translate-y-[25%] bottom-0 aspect-square w-[200%] h-auto">
         <World data={sampleArcs} globeConfig={globeConfig} />
       </div>
 
-      <div className="p-4 w-full mt-auto z-10">
+      <div className="p-4 w-full mt-auto z-10 max-w-md mx-auto">
         <motion.button
-        onClick={onNext}
-        className="w-full bg-white text-black py-4 rounded-full font-semibold text-lg shadow-md  hover:bg-[#f5f5f5] transition-colors"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.6 }}
-      > Start
-      </motion.button>
+          onClick={onNext}
+          className="w-full bg-white text-black py-3 md:py-4 rounded-full font-semibold text-base md:text-lg shadow-md hover:bg-[#f5f5f5] transition-colors"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.6 }}
+        > Start
+        </motion.button>
       </div>
     </div>
   );

@@ -44,7 +44,8 @@ export async function POST(request: Request) {
     }
 
     const parsedResponse = JSON.parse(
-      response.output_text.replace(/```json\s*|\s*```/g, "")
+      response.output_text.match(/```json\n([\s\S]*?)\n```/)?.[1] ||
+        response.output_text
     );
 
     return NextResponse.json(parsedResponse);
