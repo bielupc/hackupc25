@@ -114,14 +114,14 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
         />
 
             <TripSummary groupId={group.id} userId={user.id} recommendation={recommendation} />
+
+            <ItinerarySection recommendations={recommendation} />
             <div className="p-2 sm:p-4 m-2 sm:m-4">
               <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4">Your Trip Vibes</h2>
               <div className="py-2 sm:py-4 w-full">
                 <TravelVibesSection groupId={group.id} />
               </div>
-
             </div>
-            <ItinerarySection recommendations={recommendation} />
             
             <div className="px-2 sm:px-4">
               <button onClick={onBack} className="bottom-4 w-full sm:w-3/4 bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 sm:py-4 font-medium">
@@ -315,7 +315,7 @@ function TravelVibesSection({ groupId }: { groupId: string }) {
   }, [groupId]);
 
   if (!submittedPreferences) {
-    return <p>Loading preferences...</p>;
+    return <p>Loading images...</p>;
   }
 
       return (
