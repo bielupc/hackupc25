@@ -221,7 +221,7 @@ export default function Home() {
       className={`flex h-screen flex-col items-center justify-center ${isMobile ? '' : 'p-12 bg-gray-100'}`}
     >
       {isMobile ? (
-        <div className="w-full h-full">
+        <div className="w-full h-full pt-12 pb-8 bg-transparent">
           {renderScreen()}
         </div>
       ) : (
