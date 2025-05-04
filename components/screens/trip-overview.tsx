@@ -193,7 +193,7 @@ function TripSummary({ groupId, recommendation }) {
             </div>
             <div>
             <p className="text-sm text-left text-gray-500">Cost</p>
-            <p className="font-medium">🛫{costAnada}€ | 🛬{costTornada}€ </p>
+            <p className="font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada}€ </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -246,6 +246,7 @@ function ItinerarySection({ recommendations }: { recommendations: TravelRecommen
     </div>
   );
 }
+
 
 
 
