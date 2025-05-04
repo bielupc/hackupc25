@@ -284,7 +284,7 @@ export function HomeScreen({
                 <Building2 className="mr-2 text-blue-500" size={20} />
                 Your city
           </h2>
-          </div>
+          </div >
             <AirportAutocomplete onAirportSelect={handleAirportSelect} />
           </div>
         

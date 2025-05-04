@@ -80,12 +80,12 @@ importers:
       react-dom:
         specifier: ^19
         version: 19.1.0(react@19.1.0)
-      react-select:
-        specifier: ^5.10.1
-        version: 5.10.1(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-emoji-render:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-select:
+        specifier: ^5.10.1
+        version: 5.10.1(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwind-merge:
         specifier: ^3.2.0
         version: 3.2.0
@@ -1139,17 +1139,15 @@ packages:
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
-<<<<<<< HEAD
   cosmiconfig@7.1.0:
     resolution: {integrity: sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==}
     engines: {node: '>=10'}
-=======
+
   count-words-array@1.0.14:
     resolution: {integrity: sha512-CQDpcpdTOS3mC0LLGGIS+/JAqY5w7/rkJ+f7f6WUHL95ncUxR1IK9v79oGj0uclfRnbson/rXygmEtjwUB0Ipg==}
 
   count-words@1.0.14:
     resolution: {integrity: sha512-GUNbgOasDlpATWp4UP5Sc6RzX4ccyo+oAtJUh6geDzwt0TJofYl7hLTYJdD+Yg7r7YkkoxBSE9Nz26FGkX7v9g==}
->>>>>>> 116843d5635b75789414d852e57744dee604d48f
 
   cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -3966,7 +3964,6 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-<<<<<<< HEAD
   cosmiconfig@7.1.0:
     dependencies:
       '@types/parse-json': 4.0.2
@@ -3974,7 +3971,7 @@ snapshots:
       parse-json: 5.2.0
       path-type: 4.0.0
       yaml: 1.10.2
-=======
+
   count-words-array@1.0.14:
     dependencies:
       count-words: 1.0.14
@@ -3983,7 +3980,6 @@ snapshots:
     dependencies:
       set-or-get: 1.2.12
       worder: 1.1.2
->>>>>>> 116843d5635b75789414d852e57744dee604d48f
 
   cross-env@7.0.3:
     dependencies:
