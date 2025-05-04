@@ -193,7 +193,7 @@ function TripSummary({ groupId, recommendation }) {
             </div>
             <div>
             <p className="text-sm text-left text-gray-500">Cost</p>
-            <p className="font-medium">🛫{costAnada}€ | 🛬{costTornada}€ </p>
+            <p className="font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada}€ </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -228,11 +228,8 @@ function ItinerarySection({ recommendations }) {
               {recommendations.activities.map((activity, index) => (
                 <React.Fragment key={index}>
                   <div className="flex gap-3">
-                    {/* <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-lg">
-                      {getActivityEmoji(activity)}
-                    </div> */}
                     <div>
-                      <p className="text-sm">{activity}</p>
+                      <p className="text-sm font-medium">{activity.title}</p>
                     </div>
                   </div>
                   {index < recommendations.activities.length - 1 && (
@@ -247,6 +244,7 @@ function ItinerarySection({ recommendations }) {
     </div>
   );
 }
+
 
 
 
