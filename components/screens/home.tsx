@@ -1,13 +1,15 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
+import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check, Building2 } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
 import { getActivities } from '@/lib/activities';
 import { getFlightCost } from '@/lib/flights';
 import { supabase } from '../../lib/supabase';  
+
+import AirportAutocomplete from '@/components/ui/autosuggest';
 import { Header } from '../header';
 
 interface HomeScreenProps {
@@ -26,13 +28,13 @@ interface HomeScreenProps {
   setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export function HomeScreen({ 
+export function HomeScreen({
   user,
   group,
-  onNext, 
+  onNext,
   onBack,
   onSignOut,
-  onPaletteSelect, 
+  onPaletteSelect,
   selectedPalette = 'Sunset',
   setSelectedPalette,
   onSongSelect,
@@ -41,7 +43,31 @@ export function HomeScreen({
   selectedImages,
   setSelectedImages,
 }: HomeScreenProps) {
+  const [selectedOrigin, setSelectedOrigin] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleAirportSelect = async (iataCode: string) => {
+    setSelectedOrigin(iataCode);
+    if (user?.id && group?.id) {
+      try {
+        const { error } = await supabase
+          .from('user_groups')
+          .update({ origin: iataCode })
+          .eq('user_id', user.id)
+          .eq('group_id', group.id);
+
+        if (error) {
+          console.error('Error updating origin:', error);
+        } else {
+          console.log('Origin updated successfully');
+        }
+      } catch (error) {
+        console.error('Error updating airport origin:', error);
+      }
+    }
+  };
+
+
 
   // Save preferences when they change
   useEffect(() => {
@@ -108,6 +134,7 @@ export function HomeScreen({
         selected_images: selectedImages,
         selected_songs: selectedSongs,
       });
+
 
       // Check if all members have submitted preferences
       const { data: groupMembers, error: membersError } = await supabase
@@ -191,11 +218,29 @@ export function HomeScreen({
           console.log('Generated travel ideas:', recommendations);
 
           //  Get cost per user per group
-          const harcodedOrigin = 'BCN';
-          const costResponseAnada = await getFlightCost({ origin: harcodedOrigin, destination: recommendations.placeCode, date: groupData.trip_start_date });
+
+          const { data: originData, error: originError } = await supabase
+            .from('user_groups')
+            .select('origin')
+            .eq('user_id', user.id)
+            .eq('group_id', group.id)
+            .single();
+
+          if (originError) {
+            console.error('Error fetching origin:', originError);
+            return;
+          }
+
+          const origin = originData?.origin;
+
+          if (!origin) {
+            console.error('Origin not found for the user.');
+            return;
+          }
+          const costResponseAnada = await getFlightCost({ origin: origin, destination: recommendations.placeCode, date: groupData.trip_start_date });
           const { cost: costAnada} = await costResponseAnada.json();
 
-          const costResponseTornada = await getFlightCost({ origin: recommendations.placeCode, destination: harcodedOrigin, date: groupData.trip_end_date });
+          const costResponseTornada = await getFlightCost({ origin: recommendations.placeCode, destination: origin, date: groupData.trip_end_date });
           const { cost: costTornada } = await costResponseTornada.json();
 
           
@@ -232,6 +277,18 @@ export function HomeScreen({
       <Header user={user} onBack={onBack} onSignOut={onSignOut} />
       {/* Main Content */}
       <div className="flex-grow px-6 space-y-8 pb-6">
+        {/* Origin city*/}
+        <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold flex items-center">
+                <Building2 className="mr-2 text-blue-500" size={20} />
+                Your city
+          </h2>
+          </div>
+            <AirportAutocomplete onAirportSelect={handleAirportSelect} />
+          </div>
+        
+
         {/* Mood Board Section */}
         <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
