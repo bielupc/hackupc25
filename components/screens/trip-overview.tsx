@@ -113,7 +113,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
           onSignOut={onSignOut}
         />
 
-            <TripSummary groupId={group.id} recommendation={recommendation} />
+            <TripSummary groupId={group.id} userId={user.id} recommendation={recommendation} />
             <div className="p-4 m-4">
               <h2 className="text-xl font-bold mb-4">Your Trip Vibes</h2>
               <div className="py-4 w-full">
@@ -137,7 +137,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
 }
 
 
-function TripSummary({ groupId, recommendation }) {
+function TripSummary({userId, groupId, recommendation }) {
 
   const [costAnada, setCostAnada] = useState(null);
   const [costTornada, setCostTornada] = useState(null);
@@ -146,15 +146,26 @@ function TripSummary({ groupId, recommendation }) {
 
   useEffect(() => {
     const fetchInfo = async () => {
-      const { data, error } = await supabase
-        .from('groups')
-        .select('cost_anada, cost_tornada, trip_start_date, trip_end_date')
-        .eq('id', groupId)
-        .single();
-      if (error) {
-        console.error('Error fetching cost:', error);
-        return;
-      }
+  const { data, error } = await supabase
+    .from('user_groups')
+    .select(`
+      cost_anada,
+      cost_tornada,
+      groups (
+        trip_start_date,
+        trip_end_date
+      )
+    `)
+    .eq('user_id', userId)
+    .eq('group_id', groupId)
+    .single();
+  if (error) {
+    console.error('Error fetching trip info:', error);
+    return;
+  }
+
+
+      
   
       console.log('Cost data:', data);
   
@@ -172,7 +183,7 @@ function TripSummary({ groupId, recommendation }) {
 
   return (
     <div className="mt-6 mb-8">
-      <h1 className="text-3xl font-bold mb-2">
+      <h1 className="text-3xl font-bold mb-2 px-4">
         Your trip to <span className="text-blue-500">{recommendation.destination}</span>
       </h1>
       <p className="text-gray-500 mb-4">You're all set for an amazing adventure!</p>
@@ -193,7 +204,7 @@ function TripSummary({ groupId, recommendation }) {
             </div>
             <div>
             <p className="text-sm text-left text-gray-500">Cost</p>
-            <p className="font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada}€ </p>
+            <p className="font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada ?? 512.45}€ </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -283,193 +294,68 @@ function ItinerarySection({ recommendations }: { recommendations: TravelRecommen
   )
 }
 
+function TravelVibesSection({ groupId }: { groupId: string }) {
+  const [submittedPreferences, setSubmittedPreferences] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      const { data, error } = await supabase
+        .from('group_preferences')
+        .select('user_id, selected_images, selected_songs, palette')
+        .eq('group_id', groupId);
 
-// Usage example:
-// <RecommendationsSection recommendations={data.recommendations} />
+      if (error) {
+        console.error('Error fetching preferences:', error);
+        return;
+      }
 
+      console.log('Submitted preferences:', data);
+      setSubmittedPreferences(data);
+    };
 
-// function ItinerarySection({ itinerary }) {
-//   return (
-//     <div className="mb-8 p-4 m-4">
-//       <h2 className="text-xl font-bold mb-4">Your Itinerary</h2>
+    fetchPreferences();
+  }, [groupId]);
 
-//       <div className="space-y-4">
-//         {itinerary.map((day, index) => (
-//           <DayCard key={index} day={day} />
-//         ))}
-//       </div>
-//     </div>
-//   )
-// }
+  if (!submittedPreferences) {
+    return <p>Loading preferences...</p>;
+  }
 
-// function DayCard({ day }) {
-//   return (
-//     <motion.div
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       transition={{ duration: 0.5 }}
-//       className="bg-white rounded-2xl overflow-hidden shadow-sm "
-//     >
-//       <div className="p-4 border-b border-gray-100">
-//         <div className="flex justify-between items-center">
-//           <div className='flex flex-start flex-col'>
-//             <span className="text-sm text-left text-blue-500 font-medium">{day.day}</span>
-//             <h3 className="text-lg font-bold">{day.title}</h3>
-//           </div>
-//         </div>
-//       </div>
+  const images = submittedPreferences[0]?.selected_images || [];
 
-//       <div className="p-4">
-//         <div className="space-y-4">
-//           {day.activities.slice(0, 2).map((activity, actIndex) => (
-//             <div key={actIndex} className="flex gap-3">
-//               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-lg">
-//                 {activity.emoji}
-//               </div>
-//               <div>
-//                 <div className="flex items-center gap-1 mb-0.5">
-//                   <Clock className="h-3 w-3 text-blue-500" />
-//                   <span className="text-xs text-gray-500">{activity.time}</span>
-//                 </div>
-//                 <p className="text-sm">{activity.description}</p>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </motion.div>
-//   )
-// }
-
-
-//  const tripData = {
-//     destination: "Lisbon",
-//     dates: "June 15-20, 2025",
-//     travelers: 4,
-//     itinerary: [
-//       {
-//         day: "Day 1",
-//         title: "Explore Alfama",
-//         activities: [
-//           { time: "09:00 - 11:00", description: "São Jorge Castle tour", emoji: "🏰" },
-//           { time: "12:00 - 14:00", description: "Lunch at Time Out Market", emoji: "🍽️" },
-//           { time: "15:00 - 17:00", description: "Alfama walking tour", emoji: "🚶" },
-//           { time: "19:00 - 21:00", description: "Fado dinner experience", emoji: "🎵" },
-//         ],
-//       },
-//       {
-//         day: "Day 2",
-//         title: "Belém District",
-//         activities: [
-//           { time: "10:00 - 12:00", description: "Jerónimos Monastery", emoji: "⛪" },
-//           { time: "12:30 - 13:30", description: "Pastéis de Belém tasting", emoji: "🍮" },
-//           { time: "14:00 - 16:00", description: "Belém Tower & Monument", emoji: "🗼" },
-//           { time: "17:00 - 19:00", description: "Sunset sailing on the Tagus", emoji: "⛵" },
-//         ],
-//       },
-//       {
-//         day: "Day 3",
-//         title: "Day Trip to Sintra",
-//         activities: [
-//           { time: "09:00 - 10:30", description: "Train to Sintra", emoji: "🚂" },
-//           { time: "11:00 - 13:00", description: "Pena Palace tour", emoji: "🏯" },
-//           { time: "14:00 - 15:30", description: "Quinta da Regaleira", emoji: "🌳" },
-//           { time: "16:00 - 17:30", description: "Moorish Castle", emoji: "🏔️" },
-//           { time: "19:00 - 21:00", description: "Group dinner in Sintra", emoji: "🍷" },
-//         ],
-//       },
-//       {
-//         day: "Day 4",
-//         title: "Modern Lisbon",
-//         activities: [
-//           { time: "10:00 - 12:00", description: "LX Factory exploration", emoji: "🎨" },
-//           { time: "13:00 - 14:30", description: "Lunch at riverside restaurant", emoji: "🦞" },
-//           { time: "15:00 - 17:00", description: "Oceanário de Lisboa", emoji: "🐠" },
-//           { time: "18:00 - 20:00", description: "Sunset at Parque Eduardo VII", emoji: "🌅" },
-//         ],
-//       },
-//       {
-//         day: "Day 5",
-//         title: "Beach Day",
-//         activities: [
-//           { time: "09:30 - 10:30", description: "Travel to Cascais", emoji: "🚌" },
-//           { time: "11:00 - 15:00", description: "Beach time at Praia do Guincho", emoji: "🏖️" },
-//           { time: "15:30 - 17:00", description: "Coastal walk to Boca do Inferno", emoji: "🌊" },
-//           { time: "18:00 - 21:00", description: "Seafood dinner in Cascais", emoji: "🦐" },
-//         ],
-//       },
-//     ],
-//   }
-
-  function TravelVibesSection({ groupId }: { groupId: string }) {
-    const [submittedPreferences, setSubmittedPreferences] = useState<any>(null);
-    useEffect(() => {
-      const fetchPreferences = async () => {
-        const { data, error } = await supabase
-          .from('group_preferences')
-          .select('user_id, selected_images, selected_songs, palette')
-          .eq('group_id', groupId);
-
-        if (error) {
-          console.error('Error fetching preferences:', error);
-          return;
-        }
-
-        console.log('Submitted preferences:', data);
-        setSubmittedPreferences(data);
-      };
-
-      fetchPreferences();
-    }, [groupId]);
-
-    if (!submittedPreferences) {
-      return <p>Loading preferences...</p>;
-    }
-
-    return (
-      <div>
-        <div className="grid grid-cols-12 gap-4">
-          {/* Top left - large image */}
-          <div className="col-span-7">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
-              <img
-                src={submittedPreferences[0]?.selected_images[0]}
-                className="object-cover w-full h-full"
-              />
-            </div>
-          </div>
-
-          {/* Top right - medium image */}
-          <div className="col-span-5">
-            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md">
-              <img
-                src={submittedPreferences[0]?.selected_images[1]}
-                className="object-cover w-full h-full"
-              />
-            </div>
-          </div>
-
-          {/* Bottom left - small image */}
-          <div className="col-span-5">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
-              <img
-                src={submittedPreferences[0]?.selected_images[2]}
-                className="object-cover w-full h-full"
-              />
-            </div>
-          </div>
-
-          {/* Bottom right - wide image */}
-          <div className="col-span-7">
-            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
-              <img
-                src={submittedPreferences[0]?.selected_images[3]}
-                className="object-cover w-full h-full"
-              />
-            </div>
+  return (
+    <div className="grid grid-cols-12 gap-4">
+      {/* Dynamically render the images */}
+      {images[0] && (
+        <div className="col-span-7">
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
+            <img src={images[0]} className="object-cover w-full h-full" />
           </div>
         </div>
-      </div>
-    );
-  }
+      )}
+
+      {images[1] && (
+        <div className="col-span-5">
+          <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md">
+            <img src={images[1]} className="object-cover w-full h-full" />
+          </div>
+        </div>
+      )}
+
+      {images[2] && (
+        <div className="col-span-5">
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
+            <img src={images[2]} className="object-cover w-full h-full" />
+          </div>
+        </div>
+      )}
+
+      {images[3] && (
+        <div className="col-span-7">
+          <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
+            <img src={images[3]} className="object-cover w-full h-full" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
