@@ -1,11 +1,15 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check } from 'lucide-react';
+import { MapPin, Search, Grid, Bell, ChevronDown, Camera, Music, Palette, Plus, X, Sparkles, Check, Building2 } from 'lucide-react';
 import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
-import { supabase } from '../../lib/supabase';
+import { getActivities } from '@/lib/activities';
+import { getFlightCost } from '@/lib/flights';
+import { supabase } from '../../lib/supabase';  
+
+import AirportAutocomplete from '@/components/ui/autosuggest';
 import { Header } from '../header';
 
 interface HomeScreenProps {
@@ -24,13 +28,13 @@ interface HomeScreenProps {
   setSelectedImages: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export function HomeScreen({ 
+export function HomeScreen({
   user,
   group,
-  onNext, 
+  onNext,
   onBack,
   onSignOut,
-  onPaletteSelect, 
+  onPaletteSelect,
   selectedPalette = 'Sunset',
   setSelectedPalette,
   onSongSelect,
@@ -39,7 +43,31 @@ export function HomeScreen({
   selectedImages,
   setSelectedImages,
 }: HomeScreenProps) {
+  const [selectedOrigin, setSelectedOrigin] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleAirportSelect = async (iataCode: string) => {
+    setSelectedOrigin(iataCode);
+    if (user?.id && group?.id) {
+      try {
+        const { error } = await supabase
+          .from('user_groups')
+          .update({ origin: iataCode })
+          .eq('user_id', user.id)
+          .eq('group_id', group.id);
+
+        if (error) {
+          console.error('Error updating origin:', error);
+        } else {
+          console.log('Origin updated successfully');
+        }
+      } catch (error) {
+        console.error('Error updating airport origin:', error);
+      }
+    }
+  };
+
+
 
   // Save preferences when they change
   useEffect(() => {
@@ -89,11 +117,13 @@ export function HomeScreen({
     try {
       setIsLoading(true);
       
+      
       // Check if both images and songs are selected
       if (!selectedImages.length || !selectedSongs.length) {
         console.error('Both images and songs must be selected');
         return;
       }
+
 
       // Save preferences
       if (!user?.id || !group?.id) return;
@@ -104,6 +134,7 @@ export function HomeScreen({
         selected_images: selectedImages,
         selected_songs: selectedSongs,
       });
+
 
       // Check if all members have submitted preferences
       const { data: groupMembers, error: membersError } = await supabase
@@ -146,30 +177,81 @@ export function HomeScreen({
           const uniquePalettes = [...new Set(allPalettes)];
 
           // Generate recommendations
+
           const response = await fetch('/api/travel/recommendations', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              images: uniqueImages,
-              palette: uniquePalettes.join(', '),
-              albumMood: allSongs.map(song => song.title).join(', ')
+              images: selectedImages,
+              palette: selectedPalette,
+              songs: selectedSongs.map(song => song.title),
             }),
           });
-
+    
           if (!response.ok) {
             throw new Error('Failed to generate recommendations');
           }
+    
 
           const recommendations = await response.json();
+
+          // const recommendations = {
+          //   'destination': 'San Diego, California',
+          //   'explanation': "San Diego offers a casual and relaxed atmosphere with beautiful beaches, sunny weather, and a laid-back coastal vibe. The cool color palette of the ocean and sky complements the desired mood, making it an ideal destination for shorts, t-shirts, and summer attire. With activities like beach lounging, exploring Balboa Park, and capturing stunning sunsets with your camera, San Diego aligns perfectly with your inspiration images",
+          //   'placeCode': 'SAN',
+          //   //'startDate': '2025-05-01T00:00:00',
+          //   //'endDate': '2025-05-31T23:59:59',
+          //   'activities': void[],
+          // }
           
-          // Save recommendations to the group
+
+          // get startDate and endDate from supabase
+          const { data: groupData, error: groupError } = await supabase
+            .from('groups')
+            .select('trip_start_date, trip_end_date')
+            .eq('id', group.id)
+            .single();
+
+          recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData.trip_start_date, endDate: groupData.trip_end_date});
+          console.log('Generated travel ideas:', recommendations);
+
+          //  Get cost per user per group
+
+          const { data: originData, error: originError } = await supabase
+            .from('user_groups')
+            .select('origin')
+            .eq('user_id', user.id)
+            .eq('group_id', group.id)
+            .single();
+
+          if (originError) {
+            console.error('Error fetching origin:', originError);
+            return;
+          }
+
+          const origin = originData?.origin;
+
+          if (!origin) {
+            console.error('Origin not found for the user.');
+            return;
+          }
+          const costResponseAnada = await getFlightCost({ origin: origin, destination: recommendations.placeCode, date: groupData.trip_start_date });
+          const { cost: costAnada} = await costResponseAnada.json();
+
+          const costResponseTornada = await getFlightCost({ origin: recommendations.placeCode, destination: origin, date: groupData.trip_end_date });
+          const { cost: costTornada } = await costResponseTornada.json();
+
+          
+          // Save recommendations to the group and costs
           const { error: updateError } = await supabase
             .from('groups')
             .update({ 
               state: 'activities',
-              recommendations: recommendations
+              recommendations: recommendations,
+              cost_anada: costAnada,
+              cost_tornada: costTornada,
             })
             .eq('id', group.id);
 
@@ -195,6 +277,18 @@ export function HomeScreen({
       <Header user={user} onBack={onBack} onSignOut={onSignOut} />
       {/* Main Content */}
       <div className="flex-grow px-6 space-y-8 pb-6">
+        {/* Origin city*/}
+        <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold flex items-center">
+                <Building2 className="mr-2 text-blue-500" size={20} />
+                Your city
+          </h2>
+          </div >
+            <AirportAutocomplete onAirportSelect={handleAirportSelect} />
+          </div>
+        
+
         {/* Mood Board Section */}
         <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">

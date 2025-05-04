@@ -106,14 +106,13 @@ export async function POST(request: Request) {
     - Music moods: ${albumMood}
 
     Please provide:
-    1. A recommended travel destination that matches these vibes and would appeal to everyone in the group
-    2. 6 specific activities or experiences that would be perfect for this destination and cater to different preferences
-    3. A brief explanation of why this destination matches the provided moods and inspiration, and how it accommodates different preferences
+    1. A recommended travel destination with airport that matches these vibes. Also, include its IATA code (3 characters)
+    2. A brief explanation of why this destination matches the provided mood and inspiration
 
     Format the response as JSON with the following structure:
     {
       "destination": "string",
-      "activities": ["string"],
+      "placeCode": "string",
       "explanation": "string"
     }`;
 
