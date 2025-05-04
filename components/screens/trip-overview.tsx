@@ -231,7 +231,7 @@ function ItinerarySection({ recommendations }: { recommendations: TravelRecommen
                 <React.Fragment key={index}>
                   <div className="flex gap-3">
                     <div>
-                      <p className="text-sm">{activity.title}</p>
+                      <p className="text-sm font-medium">{activity.title}</p>
                     </div>
                   </div>
                   {index < recommendations.activities.length - 1 && (
