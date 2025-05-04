@@ -4,11 +4,24 @@ import Client from "predicthq";
 dotenv.config();
 
 const client = new Client({
-  access_token: process.env.NEXT_PUBLIC_PREDICTHQ_API_KEY,
+  access_token: process.env.NEXT_PUBLIC_PREDICTHQ_API_KEY!,
   fetch,
 });
 
 const phqEvents = client.events;
+
+interface ActivityData {
+  placeCode: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface Activity {
+  title: string;
+  description: string;
+  start: string;
+  category: string;
+}
 
 const logEventsToConsole = (events: any[]) => {
   for (const event of events) {
@@ -17,7 +30,29 @@ const logEventsToConsole = (events: any[]) => {
   }
 };
 
-export async function getActivities(data: object) {
+async function getChatGPTActivities(data: ActivityData): Promise<Activity[]> {
+  try {
+    const response = await fetch("/api/travel/chatgpt-activities", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch ChatGPT activities");
+    }
+
+    const result = await response.json();
+    return result.activities;
+  } catch (error) {
+    console.error("Error fetching ChatGPT activities:", error);
+    return [];
+  }
+}
+
+export async function getActivities(data: ActivityData) {
   /*
     place: Place IDs and/or IATA (3 character), ICAO (4 character), and UN/LOCODE (5 character) airport codes .
     country: 2-letter country code e.g. 'ES' (Spain)
@@ -40,11 +75,18 @@ export async function getActivities(data: object) {
       sort: "start",
     });
 
-    //console.log('Activities:', activities);
-    //logEventsToConsole(activities);
+    let results = activities.result.results;
 
-    return activities.result.results;
+    // If we have less than 6 results, complement with ChatGPT activities
+    if (results.length < 6) {
+      const chatGPTActivities = await getChatGPTActivities(data);
+      results = [...results, ...chatGPTActivities];
+    }
+
+    // Ensure we return at most 10 activities
+    return results.slice(0, 10);
   } catch (error) {
     console.error("Error al obtener eventos:", error);
+    return [];
   }
 }
