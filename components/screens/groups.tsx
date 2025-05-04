@@ -218,15 +218,15 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
                       {g.state === 'preferences' ? 'Go to Home' : g.state === 'activities' ? 'Go to Activities' : 'Go to Travel'}
                     </button>
                 </div>
-                <div className="flex justify-between items-center mt-2">
+                <div className="flex justify-between items-center mt-2 flex-col">
                 {/* Flight dates */}
-                <div className="mt-2 flex flex-col items-end">
+                <div className="mt-2 flex flex-col items-start text-left w-full pb-3">
                   <p className="text-sm text-gray-700">From: {g?.startDate ? g.startDate.split("T")[0] : "."}</p>
                   <p className="text-sm text-gray-700">To: {g?.endDate ? g.endDate.split("T")[0] : "."}</p>
                 </div>
     
               {/* Mostrar miembros */}
-              <div className="mt-2">
+              <div className="mt-2 flex justify-start w-full flex-col">
                 <h4 className="text-sm font-medium text-gray-500 mb-2">Members:</h4>
                 <div className="flex flex-wrap gap-2">
                   {g.users.map((u) => (
