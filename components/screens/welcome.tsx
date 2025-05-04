@@ -309,7 +309,10 @@ export function WelcomeScreen({ onNext }: WelcomeScreenProps) {
   ];
 
   return (
-    <div className="relative flex flex-col justify-center items-center h-full bg-gradient-to-b from-blue-100 via-white to-white text-black overflow-hidden pt-[3rem] md:pt-[7rem]">
+    <div 
+      className="relative flex flex-col justify-center items-center h-full bg-gradient-to-b from-blue-100 via-white to-white text-black overflow-hidden pt-[3rem] md:pt-[7rem] cursor-pointer"
+      onClick={onNext}
+    >
         <motion.div
           className="text-3xl md:text-5xl text-center font-bold z-10 top-10 md:top-20 text-black px-4"
           initial={{ opacity: 0, y: 20 }}
