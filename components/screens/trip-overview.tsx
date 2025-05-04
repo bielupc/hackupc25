@@ -209,44 +209,79 @@ function TripSummary({ groupId, recommendation }) {
     </div>
   )
 }
+
 function ItinerarySection({ recommendations }: { recommendations: TravelRecommendation | null }) {
+  // Function to format the time
+  const formatTime = (timeString) => {
+    const date = new Date(timeString)
+    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+  }
+
+  // Function to get category icon
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case "performing-arts":
+        return "🎭"
+      case "concerts":
+        return "🎵"
+      case "conferences":
+        return "🎤"
+      default:
+        return "🎪"
+    }
+  }
+
   if (!recommendations) return null;
   
   return (
-    <div className="mb-8 p-4 m-4">
-      <div className="space-y-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl overflow-hidden shadow-sm"
-        >
-          <div className="p-4 border-b border-gray-100">
-            <h3 className="text-lg font-bold">Activities</h3>
-          </div>
+    <div className="mb-8">
+      <h2 className="text-xl font-bold mb-4">Local Activities</h2>
 
-          <div className="py-8 px-8">
-            <div className="space-y-4">
-              {recommendations.activities.map((activity: TravelActivity, index: number) => (
-                <React.Fragment key={index}>
-                  <div className="flex gap-3">
-                    <div>
-                      <p className="text-sm font-medium">{activity.title}</p>
-                    </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-2xl overflow-hidden shadow-sm mx-4 py-2"
+      >
+        <div className="py-4 px-5">
+          <div className="space-y-4">
+            {recommendations.activities.map((activity, index) => (
+              <React.Fragment key={index}>
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-lg">
+                    {getCategoryIcon(activity.category)}
                   </div>
-                  {index < recommendations.activities.length - 1 && (
-                    <hr className="border-t border-gray-200 my-2" />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+                  <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                      <p className="font-medium text-left">{activity.title}</p>
+                      {activity.start_local && (
+                        <span className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-full w-fit">
+                          {activity.start_local.split("T")[0]} <br/> {formatTime(activity.start_local)}
+                        </span>
+                      )}
+                    </div>
+                    {activity.description && (
+                        <p className="text-sm text-gray-500 mt-1 line-clamp-2 text-left">
+                        {activity.description.replace(/Sourced from predicthq\.com( - )?/i, "").trim()}
+                        </p>
+                    )}
+                    {activity.phq_attendance && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <Users className="h-3 w-3 text-gray-400" />
+                        <span className="text-xs text-gray-400">{activity.phq_attendance} attendees</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {index < recommendations.activities.length - 1 && <hr className="border-t border-gray-100" />}
+              </React.Fragment>
+            ))}
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </div>
-  );
+  )
 }
-
 
 
 
