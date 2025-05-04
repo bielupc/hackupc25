@@ -318,42 +318,49 @@ function TravelVibesSection({ groupId }: { groupId: string }) {
     return <p>Loading preferences...</p>;
   }
 
-  const images = submittedPreferences[0]?.selected_images || [];
+      return (
+      <div>
+        <div className="grid grid-cols-12 gap-4">
+          {/* Top left - large image */}
+          <div className="col-span-7">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
+              <img
+                src={submittedPreferences[0]?.selected_images[0]}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          </div>
 
-  return (
-    <div className="grid grid-cols-12 gap-2 sm:gap-4">
-      {/* Dynamically render the images */}
-      {images[0] && (
-        <div className="col-span-7">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
-            <img src={images[0]} className="object-cover w-full h-full" />
+          {/* Top right - medium image */}
+          <div className="col-span-5">
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md">
+              <img
+                src={submittedPreferences[1]?.selected_images[0]}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          </div>
+
+          {/* Bottom left - small image */}
+          <div className="col-span-5">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
+              <img
+                src={submittedPreferences[2]?.selected_images[0]}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          </div>
+
+          {/* Bottom right - wide image */}
+          <div className="col-span-7">
+            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
+              <img
+                src={submittedPreferences[3]?.selected_images[0]}
+                className="object-cover w-full h-full"
+              />
+            </div>
           </div>
         </div>
-      )}
-
-      {images[1] && (
-        <div className="col-span-5">
-          <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md">
-            <img src={images[1]} className="object-cover w-full h-full" />
-          </div>
-        </div>
-      )}
-
-      {images[2] && (
-        <div className="col-span-5">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md">
-            <img src={images[2]} className="object-cover w-full h-full" />
-          </div>
-        </div>
-      )}
-
-      {images[3] && (
-        <div className="col-span-7">
-          <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md">
-            <img src={images[3]} className="object-cover w-full h-full" />
-          </div>
-        </div>
-      )}
-    </div>
-  );
+      </div>
+    );
 }
