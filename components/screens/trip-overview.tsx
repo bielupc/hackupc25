@@ -7,7 +7,7 @@ import { Image } from "lucide-react";
 import { motion} from "framer-motion";
 import { Header } from '../header';
 import { supabase } from "@/lib/supabase";
-import type { TravelRecommendation } from "./travel";
+import type { TravelRecommendation, TravelActivity } from "./travel";
 const emoji = require("node-emoji");
 
 
@@ -193,7 +193,7 @@ function TripSummary({ groupId, recommendation }) {
             </div>
             <div>
             <p className="text-sm text-left text-gray-500">Cost</p>
-            <p className="font-medium">🛫{costAnada}€ | 🛬{costTornada}€ </p>
+            <p className="font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada}€ </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -209,7 +209,9 @@ function TripSummary({ groupId, recommendation }) {
     </div>
   )
 }
-function ItinerarySection({ recommendations }) {
+function ItinerarySection({ recommendations }: { recommendations: TravelRecommendation | null }) {
+  if (!recommendations) return null;
+  
   return (
     <div className="mb-8 p-4 m-4">
       <div className="space-y-4">
@@ -225,14 +227,11 @@ function ItinerarySection({ recommendations }) {
 
           <div className="py-8 px-8">
             <div className="space-y-4">
-              {recommendations.activities.map((activity, index) => (
+              {recommendations.activities.map((activity: TravelActivity, index: number) => (
                 <React.Fragment key={index}>
                   <div className="flex gap-3">
-                    {/* <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-lg">
-                      {getActivityEmoji(activity)}
-                    </div> */}
                     <div>
-                      <p className="text-sm">{activity}</p>
+                      <p className="text-sm font-medium">{activity.title}</p>
                     </div>
                   </div>
                   {index < recommendations.activities.length - 1 && (
@@ -247,6 +246,7 @@ function ItinerarySection({ recommendations }) {
     </div>
   );
 }
+
 
 
 

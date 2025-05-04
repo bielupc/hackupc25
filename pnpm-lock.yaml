@@ -44,6 +44,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.5.0
       emoji-dictionary:
         specifier: ^1.0.12
         version: 1.0.12
@@ -68,6 +71,9 @@ importers:
       openai:
         specifier: ^4.97.0
         version: 4.97.0(encoding@0.1.13)(ws@8.18.2)
+      predicthq:
+        specifier: ^0.2.2
+        version: 0.2.2
       react:
         specifier: ^19
         version: 19.1.0
@@ -80,12 +86,12 @@ importers:
       react-dom:
         specifier: ^19
         version: 19.1.0(react@19.1.0)
-      react-select:
-        specifier: ^5.10.1
-        version: 5.10.1(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-emoji-render:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-select:
+        specifier: ^5.10.1
+        version: 5.10.1(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwind-merge:
         specifier: ^3.2.0
         version: 3.2.0
@@ -1133,23 +1139,25 @@ packages:
   convert-source-map@1.9.0:
     resolution: {integrity: sha512-ASFBup0Mz1uyiIjANan1jzLQami9z1PoYSZCiiYW2FczPbenXc45FZdBZLzOT+r6+iciuEModtmCti+hjaAk0A==}
 
+  core-js@3.0.1:
+    resolution: {integrity: sha512-sco40rF+2KlE0ROMvydjkrVMMG1vYilP2ALoRXcYR4obqbYIuV3Bg+51GEDW+HF8n7NRA+iaA4qD0nD9lo9mew==}
+    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+
   core-util-is@1.0.2:
     resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
-<<<<<<< HEAD
   cosmiconfig@7.1.0:
     resolution: {integrity: sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==}
     engines: {node: '>=10'}
-=======
+
   count-words-array@1.0.14:
     resolution: {integrity: sha512-CQDpcpdTOS3mC0LLGGIS+/JAqY5w7/rkJ+f7f6WUHL95ncUxR1IK9v79oGj0uclfRnbson/rXygmEtjwUB0Ipg==}
 
   count-words@1.0.14:
     resolution: {integrity: sha512-GUNbgOasDlpATWp4UP5Sc6RzX4ccyo+oAtJUh6geDzwt0TJofYl7hLTYJdD+Yg7r7YkkoxBSE9Nz26FGkX7v9g==}
->>>>>>> 116843d5635b75789414d852e57744dee604d48f
 
   cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -1289,6 +1297,10 @@ packages:
   dom-scroll-into-view@1.0.1:
     resolution: {integrity: sha512-1Dmy6uH1vRcm2+Lvggyrlc04cMh+mr+VA+qcgs085hAEZp+v+6NT/xhRjfc6vRc7965sCSDdQcw063VkG+eNmQ==}
 
+  dotenv@16.5.0:
+    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
+    engines: {node: '>=12'}
+
   draco3d@1.5.7:
     resolution: {integrity: sha512-m6WCKt/erDXcw+70IJXnG7M3awwQPAsZvJGX5zY7beBqpELw6RDGkYVU0W43AFxye4pDZ5i2Lbyc/NNGqwjUVQ==}
 
@@ -1369,6 +1381,9 @@ packages:
   es-set-tostringtag@2.1.0:
     resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
     engines: {node: '>= 0.4'}
+
+  es6-promise@3.2.1:
+    resolution: {integrity: sha512-oj4jOSXvWglTsc3wrw86iom3LDPOx1nbipQk+jaG3dy+sMRM6ReSgVr/VlmBuF6lXUrflN9DCcQHeSbAwGUl4g==}
 
   escalade@3.2.0:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
@@ -1764,6 +1779,9 @@ packages:
   json-stringify-safe@5.0.1:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
 
+  jsonschema@1.1.0:
+    resolution: {integrity: sha512-nQhT+ioA1XM8CpxJYlBfcUj6HF3f3f2KbLgV3tcxOt85RKpk2b0Do/C5BnCCCfdAarAjWRSFlln0Uanl4tBCHA==}
+
   jsprim@1.4.2:
     resolution: {integrity: sha512-P2bSOMAc/ciLz6DzgjVlGJP9+BrJWu5UDGK70C2iweC5QBIeFf0ZXRvGjEj2uYgrY2MkAAhsSWHDWlFtEroZWw==}
     engines: {node: '>=0.6.0'}
@@ -1801,6 +1819,10 @@ packages:
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+
+  loglevel@1.4.1:
+    resolution: {integrity: sha512-Vy09PWRlLhcxBiCFLxjP6hMmiyfoW/RAfHLW51rQETcWkng8xcA/MEyzI8hoxlQ4Wno1pVTWH1EYUqR9VfZomQ==}
+    engines: {node: '>= 0.6.0'}
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -2204,6 +2226,9 @@ packages:
 
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
+
+  predicthq@0.2.2:
+    resolution: {integrity: sha512-YKukbNtd3TOVJCwiCKnzEu6kpju38Zd9xNlbomXCVpYywru73x01SJ2SBX1DryVwe00Dp58LnmXTQmX7oHhNmg==}
 
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
@@ -2821,6 +2846,9 @@ packages:
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
+  whatwg-fetch@1.0.0:
+    resolution: {integrity: sha512-/l7W52XmAwf0u1TkfttgZb6cqHswjhZN9ZkVw6g66Ept6J62NhBsLmgO5HrLoI0wqU51gf+vlXNdS8EvSU/jQw==}
+
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
@@ -2885,6 +2913,9 @@ packages:
   yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
+
+  youarei@1.0.2:
+    resolution: {integrity: sha512-arAwFYNLccd8tOu6jjfwh3oD6amZSDhCwDGafv8q6ob5II87OLQ5ZTvsHEQpBkxnOwI6w6Ed5LcOhhbB8uewqw==}
 
   zustand@4.5.6:
     resolution: {integrity: sha512-ibr/n1hBzLLj5Y+yUcU7dYw8p6WnIVzdJbnX+1YpaScvZVF2ziugqHs+LAmHw4lWO9c/zRj+K1ncgWDQuthEdQ==}
@@ -3962,11 +3993,12 @@ snapshots:
 
   convert-source-map@1.9.0: {}
 
+  core-js@3.0.1: {}
+
   core-util-is@1.0.2: {}
 
   core-util-is@1.0.3: {}
 
-<<<<<<< HEAD
   cosmiconfig@7.1.0:
     dependencies:
       '@types/parse-json': 4.0.2
@@ -3974,7 +4006,7 @@ snapshots:
       parse-json: 5.2.0
       path-type: 4.0.0
       yaml: 1.10.2
-=======
+
   count-words-array@1.0.14:
     dependencies:
       count-words: 1.0.14
@@ -3983,7 +4015,6 @@ snapshots:
     dependencies:
       set-or-get: 1.2.12
       worder: 1.1.2
->>>>>>> 116843d5635b75789414d852e57744dee604d48f
 
   cross-env@7.0.3:
     dependencies:
@@ -4115,6 +4146,8 @@ snapshots:
 
   dom-scroll-into-view@1.0.1: {}
 
+  dotenv@16.5.0: {}
+
   draco3d@1.5.7: {}
 
   dunder-proto@1.0.1:
@@ -4206,6 +4239,8 @@ snapshots:
       get-intrinsic: 1.3.0
       has-tostringtag: 1.0.2
       hasown: 2.0.2
+
+  es6-promise@3.2.1: {}
 
   escalade@3.2.0: {}
 
@@ -4584,6 +4619,8 @@ snapshots:
 
   json-stringify-safe@5.0.1: {}
 
+  jsonschema@1.1.0: {}
+
   jsprim@1.4.2:
     dependencies:
       assert-plus: 1.0.0
@@ -4616,6 +4653,8 @@ snapshots:
   lodash.isstring@4.0.1: {}
 
   lodash@4.17.21: {}
+
+  loglevel@1.4.1: {}
 
   loose-envify@1.4.0:
     dependencies:
@@ -5034,6 +5073,15 @@ snapshots:
       source-map-js: 1.2.1
 
   potpack@1.0.2: {}
+
+  predicthq@0.2.2:
+    dependencies:
+      core-js: 3.0.1
+      es6-promise: 3.2.1
+      jsonschema: 1.1.0
+      loglevel: 1.4.1
+      whatwg-fetch: 1.0.0
+      youarei: 1.0.2
 
   process-nextick-args@2.0.1: {}
 
@@ -5721,6 +5769,8 @@ snapshots:
 
   webidl-conversions@3.0.1: {}
 
+  whatwg-fetch@1.0.0: {}
+
   whatwg-url@5.0.0:
     dependencies:
       tr46: 0.0.3
@@ -5773,6 +5823,8 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+
+  youarei@1.0.2: {}
 
   zustand@4.5.6(@types/react@19.1.2)(react@19.1.0):
     dependencies:

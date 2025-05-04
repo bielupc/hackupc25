@@ -214,7 +214,7 @@ export function HomeScreen({
             .eq('id', group.id)
             .single();
 
-          recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData.trip_start_date, endDate: groupData.trip_end_date});
+          recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData?.trip_start_date, endDate: groupData?.trip_end_date});
           console.log('Generated travel ideas:', recommendations);
 
           // Save recommendations to the group
@@ -297,7 +297,7 @@ export function HomeScreen({
                 <Building2 className="mr-2 text-blue-500" size={20} />
                 Your city
           </h2>
-          </div>
+          </div >
             <AirportAutocomplete onAirportSelect={handleAirportSelect} />
           </div>
         

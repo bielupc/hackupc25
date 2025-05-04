@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Copy, Check } from 'lucide-react';
 import type { User } from './auth-page';
 import { Header } from '../header';
 import { DatePickerWithRange } from "@/components/ui/date-picker";
@@ -44,6 +44,15 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
   const [groups, setGroups] = useState<GroupWithUsers[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const resetCreateForm = () => {
+    setGroupName('');
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setError(null);
+    setCreatedCode(null);
+  };
 
   const handleDateChange = (start: string | undefined, end: Date | undefined) => {
     setStartDate(start);
@@ -135,10 +144,8 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
       { user_id: user.id, group_id: groupId }
     ]);
     setCreatedCode(code);
-    setGroups([...groups, { id: groupId, name: groupName, code, state: 'preferences', users: [], trip_start_date: startDate, trip_end_date: endDate }]);
+    setGroups([...groups, { id: groupId, name: groupName, code, state: 'preferences', users: [], startDate, endDate }]);
     setIsLoading(false);
-    setMode('list');
-    onGroupSelected({ id: groupId, name: groupName, code });
   };
 
   const handleJoinGroup = async () => {
@@ -171,7 +178,7 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
     setGroups([...groups, { id: group.id, name: group.name, code: group.code, startDate: group.trip_start_date, endDate: group.trip_end_date , state: group.state || 'preferences', users: [] }]);
     setIsLoading(false);
     setMode('list');
-    onGroupSelected(group);
+    // onGroupSelected(group);
   };
 
   // Handler for going back to the main list
@@ -187,6 +194,16 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
     }
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-blue-100 via-white to-white py-4">
       <Header
@@ -198,9 +215,10 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
       {mode === 'list' && (
         <>
           <div className="mb-6 px-4">
-            <button onClick={() => setMode('create')} className="w-full bg-blue-600 text-white py-3 rounded-full font-semibold mb-2">Create Group</button>
+            <button onClick={() => { setMode('create'); resetCreateForm(); }} className="w-full bg-blue-600 text-white py-3 rounded-full font-semibold mb-2">Create Group</button>
             <button onClick={() => setMode('join')} className="w-full bg-gray-200 text-gray-800 py-3 rounded-full font-semibold">Join Group</button>
           </div>
+          
           <h3 className="text-lg font-semibold mb-2 px-4">Your Groups</h3>
           {isLoading ? <div>Loading...</div> : (
             <ul className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4">
@@ -267,7 +285,34 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
           <button onClick={handleCreateGroup} className="bg-blue-600 text-white py-3 rounded-full font-semibold" disabled={isLoading}>
             {isLoading ? 'Creating...' : 'Create'}
           </button>
-          {createdCode && <div className="text-green-600">Group created! Share this code: <b>{createdCode}</b></div>}
+            {createdCode && (
+            <div className="mb-6 px-4">
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Group Created Successfully! 🎉</h3>
+                <p className="text-gray-600 mb-4">Share this code with your friends so they can join your group:</p>
+                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 mb-2">
+                  <span className="font-mono text-xl tracking-wider">{createdCode}</span>
+                  <button
+                    onClick={() => copyToClipboard(createdCode)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={16} />
+                        <span>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={16} />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500">Click the button above to copy the code</p>
+              </div>
+            </div>
+          )}
           {error && <div className="text-red-500">{error}</div>}
         </div>
       )}

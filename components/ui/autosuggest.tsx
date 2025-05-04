@@ -45,15 +45,22 @@ const handleChange = (selectedOption: any) => {
 };
 
 return (
-    <div>
     <Select
-        value={selectedAirport}
-        onChange={handleChange}
-        options={airports}
-        className="rounded-lg"
-        placeholder="E.g. Barcelona El Prat (BCN)"
-    />
-    </div>
+  value={selectedAirport}
+  onChange={handleChange}
+  options={airports}
+  className="rounded-lg"
+  placeholder="E.g. Barcelona El Prat (BCN)"
+  menuPortalTarget={document.body}
+  menuPosition="fixed"
+  styles={{
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999, 
+    }),
+  }}
+/>
+  
 );
 };
 
