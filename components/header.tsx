@@ -18,7 +18,7 @@ export function Header({ user, onBack, onSignOut }: HeaderProps) {
         <div className="flex sm:hidden">
           <button
             onClick={onBack}
-            className="fixed top-4 left-4 z-20 p-3 rounded-full bg-white shadow-lg text-gray-700 hover:bg-gray-100 transition-colors"
+            className="fixed bottom-8 left-4 z-20 p-3 rounded-full bg-white shadow-lg text-gray-700 hover:bg-gray-100 transition-colors"
             aria-label="Back"
           >
             <ArrowLeft size={24} />
