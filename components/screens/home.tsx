@@ -166,6 +166,7 @@ export function HomeScreen({
 
       if (allMembersSubmitted) {
         // All members have submitted complete preferences, generate activities
+        console.log('All members have submitted preferences, generating activities...');   
         try {
           // Combine all preferences
           const allImages = submittedPreferences.flatMap(pref => pref.selected_images || []);
@@ -196,6 +197,7 @@ export function HomeScreen({
     
 
           const recommendations = await response.json();
+          console.log("Recomendations fetched")
 
           // const recommendations = {
           //   'destination': 'San Diego, California',
@@ -214,10 +216,27 @@ export function HomeScreen({
             .eq('id', group.id)
             .single();
 
+          console.log("Get dates")
+
           recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData?.trip_start_date, endDate: groupData?.trip_end_date});
           console.log('Generated travel ideas:', recommendations);
 
-          //  Get cost per user per group
+          // Save recommendations to the group
+          const { error: updateError } = await supabase
+            .from('groups')
+            .update({ 
+              state: 'activities',
+              recommendations: recommendations
+            })
+            .eq('id', group.id);
+
+            if (updateError) {
+              console.error('Error updating group state:', updateError);
+            }
+
+          console.log("Saved group recomendations")
+          
+          // Get origin of the user to compute the price of the flights
           const { data: originData, error: originError } = await supabase
             .from('user_groups')
             .select('origin')
@@ -236,26 +255,28 @@ export function HomeScreen({
             console.error('Origin not found for the user.');
             return;
           }
+
+          console.log("Got origin!")
+
+
+          // Compute the cost of the flights
           const costResponseAnada = await getFlightCost({ origin: origin, destination: recommendations.placeCode, date: groupData.trip_start_date });
           const { cost: costAnada} = await costResponseAnada.json();
 
           const costResponseTornada = await getFlightCost({ origin: recommendations.placeCode, destination: origin, date: groupData.trip_end_date });
           const { cost: costTornada } = await costResponseTornada.json();
 
-          
-          // Save recommendations to the group and costs
-          const { error: updateError } = await supabase
-            .from('groups')
-            .update({ 
-              state: 'activities',
-              recommendations: recommendations,
-              cost_anada: costAnada,
-              cost_tornada: costTornada,
-            })
-            .eq('id', group.id);
+          const { error: updateCostError } = await supabase
+          .from('user_groups')
+          .update({ 
+            cost_anada: costAnada,
+            cost_tornada: costTornada,
+          })
+          .eq('group_id', group.id)
+          .eq('user_id', user.id);
 
-          if (updateError) {
-            console.error('Error updating group state:', updateError);
+          if (updateCostError) {
+            console.error('Error updating group state:', updateCostError);
           }
         } catch (error) {
           console.error('Error generating recommendations:', error);
