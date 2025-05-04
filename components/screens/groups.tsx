@@ -62,7 +62,6 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
   useEffect(() => {
     // Fetch groups the user is in
     const fetchGroups = async () => {
-      setIsLoading(true);
       const { data, error } = await supabase
         .from('user_groups')
         .select(`
@@ -110,12 +109,26 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
           })
         );
         
-        setGroups(groupsWithUsers);
+        // Only update state if there are actual changes
+        const hasChanges = JSON.stringify(groupsWithUsers) !== JSON.stringify(groups);
+        if (hasChanges) {
+          setGroups(groupsWithUsers);
+        }
       }
-      setIsLoading(false);
     };
-    fetchGroups();
-  }, [user.id]);
+
+    // Initial fetch
+    setIsLoading(true);
+    fetchGroups().finally(() => setIsLoading(false));
+
+    // Set up polling every 2 seconds
+    const intervalId = setInterval(() => {
+      fetchGroups();
+    }, 2000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [user.id, groups]);
 
   const handleCreateGroup = async () => {
     if (!groupName) {
