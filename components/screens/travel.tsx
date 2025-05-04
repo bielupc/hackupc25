@@ -13,7 +13,7 @@ interface TravelScreenProps {
   group: { id: string; name: string; code: string } | null;
 }
 
-interface TravelActivity {
+export interface TravelActivity {
   title: string;
   // TODO: Add more properties
 }
@@ -64,6 +64,9 @@ export function TravelScreen({ onNext, onBack, user, group, onSignOut }: TravelS
           .select('recommendations')
           .eq('id', group.id)
           .single();
+        
+        console.log('groupData', groupData);
+        console.log('groupError', groupError);
 
         if (groupError || !groupData?.recommendations) {
           console.error('Error fetching group recommendations:', groupError);

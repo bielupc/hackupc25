@@ -214,11 +214,10 @@ export function HomeScreen({
             .eq('id', group.id)
             .single();
 
-          recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData.trip_start_date, endDate: groupData.trip_end_date});
+          recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData?.trip_start_date, endDate: groupData?.trip_end_date});
           console.log('Generated travel ideas:', recommendations);
 
           //  Get cost per user per group
-
           const { data: originData, error: originError } = await supabase
             .from('user_groups')
             .select('origin')
