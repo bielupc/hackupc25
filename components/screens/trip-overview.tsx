@@ -202,7 +202,7 @@ function TripSummary({userId, groupId, recommendation }) {
             </div>
             <div>
             <p className="text-xs sm:text-sm text-left text-gray-500">Cost</p>
-            <p className="text-sm sm:text-base font-medium">🛫{costAnada ?? 412.43}€ | 🛬{costTornada ?? 512.45}€ </p>
+            <p className="text-sm sm:text-base font-medium">🛫{costAnada ?? (400 + Math.random() * 200).toFixed(2)}€ | 🛬{costTornada ?? (400 + Math.random() * 200).toFixed(2)}€ </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -211,7 +211,7 @@ function TripSummary({userId, groupId, recommendation }) {
           </div>
           <div>
             <p className="text-xs sm:text-sm text-gray-500">Travelers</p>
-            <p className="text-sm sm:text-base font-medium">4 friends</p>
+            <p className="text-sm sm:text-base font-medium">2 friends</p>
           </div>
         </div>
       </div>
