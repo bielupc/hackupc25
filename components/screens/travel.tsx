@@ -288,7 +288,9 @@ export function TravelScreen({ onNext, onBack, user, group, onSignOut }: TravelS
       {/* Activities Section */}
       <div className="flex-1 overflow-y-auto px-4 py-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="grid grid-cols-2 gap-4 ">
-          {recommendation.activities.map((activity, index) => {
+          {recommendation.activities
+            .filter(activity => activityVideos[activity.title]?.length > 0)
+            .map((activity, index) => {
             // If this activity was last selected, show its video as selected
             const title = activity.title;
             const isSelected = lastSelected && lastSelected.activity === title;
@@ -308,16 +310,16 @@ export function TravelScreen({ onNext, onBack, user, group, onSignOut }: TravelS
                       playsInline
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-  <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-    {feedback === 'like' ? (
-      <Heart size={28} className="text-white" fill="#FFFFFF" />
-    ) : feedback === 'dislike' ? (
-      <X size={28} className="text-white" />
-    ) : (
-      <ChevronRight size={24} className="text-white" />
-    )}
-  </div>
-</div>
+                      <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                        {feedback === 'like' ? (
+                          <Heart size={28} className="text-white" fill="#FFFFFF" />
+                        ) : feedback === 'dislike' ? (
+                          <X size={28} className="text-white" />
+                        ) : (
+                          <ChevronRight size={24} className="text-white" />
+                        )}
+                      </div>
+                    </div>
                   </button>
                 )}
               </div>
