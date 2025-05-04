@@ -18,7 +18,7 @@ interface TravelActivity {
   // TODO: Add more properties
 }
 
-interface TravelRecommendation {
+export interface TravelRecommendation {
   destination: string;
   activities: TravelActivity[];
   explanation: string;
