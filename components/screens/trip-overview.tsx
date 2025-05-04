@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Image } from "lucide-react";
 import { motion} from "framer-motion";
 import { Header } from '../header';
+import { supabase } from "@/lib/supabase";
 
 
 interface TripOverviewProps {
@@ -68,7 +69,7 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
           onSignOut={onSignOut}
         />
 
-            <TripSummary destination={tripData.destination} dates={tripData.dates} travelers={tripData.travelers} />
+            <TripSummary groupId={group.id} />
             <div className="p-4 m-4">
               <h2 className="text-xl font-bold mb-4">Your Trip Vibes</h2>
               <div className="py-4 w-full">
@@ -92,11 +93,42 @@ export function TripOverview({ group, user, onBack, onSignOut }: TripOverviewPro
 }
 
 
-function TripSummary({ destination, dates, travelers }) {
+function TripSummary({ groupId }) {
+
+  const [cost, setCost] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  useEffect(() => {
+    const fetchInfo = async () => {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('cost, trip_start_date, trip_end_date')
+        .eq('id', groupId)
+        .single();
+  
+      if (error) {
+        console.error('Error fetching cost:', error);
+        return;
+      }
+  
+      console.log('Cost data:', data);
+  
+      if (data) {
+        setCost(data.cost);
+        setStartDate(data.trip_start_date);
+        setEndDate(data.trip_end_date);
+      }
+    };
+  
+    fetchInfo();
+  }, [groupId]);
+
+
   return (
     <div className="mt-6 mb-8">
       <h1 className="text-3xl font-bold mb-2">
-        Your trip to <span className="text-blue-500">{destination}</span>
+        Your trip to <span className="text-blue-500">Destination</span>
       </h1>
       <p className="text-gray-500 mb-4">You're all set for an amazing adventure!</p>
 
@@ -107,7 +139,7 @@ function TripSummary({ destination, dates, travelers }) {
           </div>
           <div>
             <p className="text-sm text-left text-gray-500">Trip dates</p>
-            <p className="font-medium">{dates}</p>
+            <p className="font-medium">{`${startDate ? startDate.split('T')[0] : ""} | ${endDate ? endDate.split("T")[0] : ""}`}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 mb-4">
@@ -116,7 +148,7 @@ function TripSummary({ destination, dates, travelers }) {
             </div>
             <div>
             <p className="text-sm text-left text-gray-500">Cost</p>
-            <p className="font-medium">300€</p>
+            <p className="font-medium">{cost} € </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -125,7 +157,7 @@ function TripSummary({ destination, dates, travelers }) {
           </div>
           <div>
             <p className="text-sm text-gray-500">Travelers</p>
-            <p className="font-medium">{travelers} friends</p>
+            <p className="font-medium">4 friends</p>
           </div>
         </div>
       </div>

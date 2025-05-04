@@ -33,8 +33,8 @@ export async function getActivities(data: object) {
     const activities = await phqEvents.search({
       //within: withinParam,
       'place.exact': placeCode,
-      'start.gte': startDate,
-      'start.lte': endDate,
+      'start.gte': startDate.split('+')[0],
+      'start.lte': endDate.split('+')[0],
       'category': 'sports,conferences,expos,concerts,festivals,performing-arts,community,academic',
       sort: 'start'
     });

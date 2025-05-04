@@ -221,8 +221,8 @@ export function GroupsScreen({ user, onGroupSelected, onBack, onGoToActivities, 
                 <div className="flex justify-between items-center mt-2">
                 {/* Flight dates */}
                 <div className="mt-2 flex flex-col items-end">
-                  <p className="text-sm text-gray-700">From: {g.startDate.split("T")[0]}</p>
-                  <p className="text-sm text-gray-700">To: {g.endDate.split("T")[0]}</p>
+                  <p className="text-sm text-gray-700">From: {g?.startDate ? g.startDate.split("T")[0] : "."}</p>
+                  <p className="text-sm text-gray-700">To: {g?.endDate ? g.endDate.split("T")[0] : "."}</p>
                 </div>
     
               {/* Mostrar miembros */}

@@ -90,40 +90,7 @@ export function HomeScreen({
     try {
       setIsLoading(true);
       
-      const response = await fetch('/api/travel/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          images: selectedImages,
-          palette: selectedPalette,
-          songs: selectedSongs.map(song => song.title),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate recommendations');
-      }
-
-      const data = await response.json();
-  
-      // const data = {
-      //   'destination': 'San Diego, California',
-      //   'explanation': "San Diego offers a casual and relaxed atmosphere with beautiful beaches, sunny weather, and a laid-back coastal vibe. The cool color palette of the ocean and sky complements the desired mood, making it an ideal destination for shorts, t-shirts, and summer attire. With activities like beach lounging, exploring Balboa Park, and capturing stunning sunsets with your camera, San Diego aligns perfectly with your inspiration images",
-      //   'placeCode': 'KSAN',
-      //   'startDate': '2025-05-01T00:00:00',
-      //   'endDate': '2025-05-31T23:59:59',
-      //   'activities': void[],
-      // }
-      data.startDate = '2025-05-01T00:00:00';
-      data.endDate = '2025-05-31T23:59:59';
-      data.activities = await getActivities(data);
-      console.log('Generated travel ideas:', data);
-  
-
-
-
+      
       // Check if both images and songs are selected
       if (!selectedImages.length || !selectedSongs.length) {
         console.error('Both images and songs must be selected');
@@ -182,23 +149,45 @@ export function HomeScreen({
           const uniquePalettes = [...new Set(allPalettes)];
 
           // Generate recommendations
+
           const response = await fetch('/api/travel/recommendations', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              images: uniqueImages,
-              palette: uniquePalettes.join(', '),
-              albumMood: allSongs.map(song => song.title).join(', ')
+              images: selectedImages,
+              palette: selectedPalette,
+              songs: selectedSongs.map(song => song.title),
             }),
           });
-
+    
           if (!response.ok) {
             throw new Error('Failed to generate recommendations');
           }
+    
 
           const recommendations = await response.json();
+
+          // const recommendations = {
+          //   'destination': 'San Diego, California',
+          //   'explanation': "San Diego offers a casual and relaxed atmosphere with beautiful beaches, sunny weather, and a laid-back coastal vibe. The cool color palette of the ocean and sky complements the desired mood, making it an ideal destination for shorts, t-shirts, and summer attire. With activities like beach lounging, exploring Balboa Park, and capturing stunning sunsets with your camera, San Diego aligns perfectly with your inspiration images",
+          //   'placeCode': 'KSAN',
+          //   //'startDate': '2025-05-01T00:00:00',
+          //   //'endDate': '2025-05-31T23:59:59',
+          //   'activities': void[],
+          // }
+          
+
+          // get startDate and endDate from supabase
+          const { data: groupData, error: groupError } = await supabase
+            .from('groups')
+            .select('trip_start_date, trip_end_date')
+            .eq('id', group.id)
+            .single();
+
+          recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData.trip_start_date, endDate: groupData.trip_end_date});
+          console.log('Generated travel ideas:', recommendations);
           
           // Save recommendations to the group
           const { error: updateError } = await supabase
