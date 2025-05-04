@@ -12,7 +12,7 @@ export const getFlightCost = async (args) => {
   "Maui embodies the relaxed, vacation-ready vibe from the images and preferences. It offers stunning sunset views, vibrant beach activities, and opportunities for exploration through its picturesque landscapes. With warm weather, plenty of swimmable beaches, and a laid-back atmosphere perfect for casual summer attire, Maui is ideal for group members looking to unwind and enjoy picturesque moments filled with photography at sunset."
   placeCode: "OGG"
   */
-  
+  console.log("trying to get flights") 
   const { origin, destination, date} = args;
 
   const response = await fetch('/api/skyscanner', {
