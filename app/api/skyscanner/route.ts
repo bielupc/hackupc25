@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     let pollData;
     let agents;
-    const maxRetries = 3;
+    const maxRetries = 20;
     let attempt = 0;
 
     while (attempt < maxRetries) {
@@ -97,22 +97,16 @@ export async function POST(req: Request) {
 function formatData(data){
   const results = data?.content?.results;
   //console.log('raw data:', data);
-  const cheapestItineraryId = data.content.sortingOptions?.cheapest[0]?.itineraryId;
-  console.log('cheapestItineraryId', cheapestItineraryId)
+  const cheapestSorting = data?.content?.sortingOptions?.cheapest;
+
+  const cheapestItineraryId = 
+  !cheapestSorting || cheapestSorting.length === 0
+    ? results.itineraries[0]?.id
+    : cheapestSorting[0]?.itineraryId;
+  
+  console.log(' ', cheapestItineraryId)
   const cheapestItinerary = results.itineraries[cheapestItineraryId];
   
-  const segmentId = transformString(cheapestItineraryId);
-  
-  const cheapestSegment = results.segments[segmentId];
-  //console.log('cheapestSegment', cheapestSegment)
-
-  const arrivalDateTime = cheapestSegment.arrivalDateTime;
-  const departureDateTime = cheapestSegment.departureDateTime;
-  const destinationId = cheapestSegment.destinationPlaceId;
-  const originId = cheapestSegment.originPlaceId;
-
-  const destination = results.places[destinationId].iata;
-  const origin = results.places[originId].iata;
 
   let minPrice = Number.MAX_VALUE;
   let minPriceUnit = '';
@@ -132,12 +126,7 @@ function formatData(data){
   }
   // TODO: add airline name
   return {
-    startDate: departureDateTime,
-    endDate: arrivalDateTime,
-    origin: origin,
-    destination: destination,
-    minPrice: minPrice
-    //raw_data: data,
+    cost: minPrice
   }
 }
 

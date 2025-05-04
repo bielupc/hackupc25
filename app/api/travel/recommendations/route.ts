@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     - Music moods: ${albumMood}
 
     Please provide:
-    1. A recommended travel destination with airport that matches these vibes. Also, include its ICAO code (4 characters)
+    1. A recommended travel destination with airport that matches these vibes. Also, include its IATA code (3 characters)
     2. A brief explanation of why this destination matches the provided mood and inspiration
 
     Format the response as JSON with the following structure:

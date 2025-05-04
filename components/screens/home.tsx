@@ -6,6 +6,7 @@ import { colorPalettes } from './palette-selector';
 import type { User } from './auth-page';
 import type { Song } from '../search-song';
 import { getActivities } from '@/lib/activities';
+import { getFlightCost } from '@/lib/flights';
 import { supabase } from '../../lib/supabase';  
 import { Header } from '../header';
 
@@ -172,7 +173,7 @@ export function HomeScreen({
           // const recommendations = {
           //   'destination': 'San Diego, California',
           //   'explanation': "San Diego offers a casual and relaxed atmosphere with beautiful beaches, sunny weather, and a laid-back coastal vibe. The cool color palette of the ocean and sky complements the desired mood, making it an ideal destination for shorts, t-shirts, and summer attire. With activities like beach lounging, exploring Balboa Park, and capturing stunning sunsets with your camera, San Diego aligns perfectly with your inspiration images",
-          //   'placeCode': 'KSAN',
+          //   'placeCode': 'SAN',
           //   //'startDate': '2025-05-01T00:00:00',
           //   //'endDate': '2025-05-31T23:59:59',
           //   'activities': void[],
@@ -188,13 +189,24 @@ export function HomeScreen({
 
           recommendations.activities = await getActivities({placeCode: recommendations.placeCode, startDate: groupData.trip_start_date, endDate: groupData.trip_end_date});
           console.log('Generated travel ideas:', recommendations);
+
+          //  Get cost per user per group
+          const harcodedOrigin = 'BCN';
+          const costResponseAnada = await getFlightCost({ origin: harcodedOrigin, destination: recommendations.placeCode, date: groupData.trip_start_date });
+          const { cost: costAnada} = await costResponseAnada.json();
+
+          const costResponseTornada = await getFlightCost({ origin: recommendations.placeCode, destination: harcodedOrigin, date: groupData.trip_end_date });
+          const { cost: costTornada } = await costResponseTornada.json();
+
           
-          // Save recommendations to the group
+          // Save recommendations to the group and costs
           const { error: updateError } = await supabase
             .from('groups')
             .update({ 
               state: 'activities',
-              recommendations: recommendations
+              recommendations: recommendations,
+              cost_anada: costAnada,
+              cost_tornada: costTornada,
             })
             .eq('id', group.id);
 
